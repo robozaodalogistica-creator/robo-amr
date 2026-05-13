@@ -1,0 +1,16 @@
+[1.107s] Invoking command in '/workspace/nav_test/build/nav_test': PYTHONPATH=/workspace/nav_test/build/nav_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/workspace/nav_test/install/nav_test/lib/python3.12/site-packages:${PYTHONPATH} SUDO_COMMAND=/usr/bin/bash -lc 
+        set -e
+        source /opt/ros/jazzy/setup.bash
+        cd '/workspace/nav_test'
+        colcon build --symlink-install             --event-handlers console_cohesion+ console_package_list+             --cmake-args -DCMAKE_BUILD_TYPE=Release /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /workspace/nav_test/build/nav_test/build --no-deps symlink_data --force
+[1.455s] usage: setup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]
+[1.456s]    or: setup.py --help [cmd1 cmd2 ...]
+[1.456s]    or: setup.py --help-commands
+[1.457s]    or: setup.py cmd --help
+[1.457s] 
+[1.458s] error: option --editable not recognized
+[1.470s] Invoked command in '/workspace/nav_test/build/nav_test' returned '1': PYTHONPATH=/workspace/nav_test/build/nav_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/workspace/nav_test/install/nav_test/lib/python3.12/site-packages:${PYTHONPATH} SUDO_COMMAND=/usr/bin/bash -lc 
+        set -e
+        source /opt/ros/jazzy/setup.bash
+        cd '/workspace/nav_test'
+        colcon build --symlink-install             --event-handlers console_cohesion+ console_package_list+             --cmake-args -DCMAKE_BUILD_TYPE=Release /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /workspace/nav_test/build/nav_test/build --no-deps symlink_data --force

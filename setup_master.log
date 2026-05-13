@@ -1,0 +1,273 @@
+============================================================
+  setup_master.sh — Wed May 13 08:46:01 PM UTC 2026
+============================================================
+
+[1;34m[20:46:01] [0/7] Base tools and APT repositories[0m
+W: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+  [1;33m↷[0m curl (already present, skipping)
+  [1;33m↷[0m gnupg2 (already present, skipping)
+  [1;33m↷[0m ca-certificates (already present, skipping)
+  [1;33m↷[0m lsb-release (already present, skipping)
+  [1;33m↷[0m software-properties-common (already present, skipping)
+  [1;33m↷[0m locales (already present, skipping)
+  [1;33m↷[0m build-essential (already present, skipping)
+  [1;33m↷[0m git (already present, skipping)
+  [1;33m↷[0m wget (already present, skipping)
+  [1;33m↷[0m sudo (already present, skipping)
+  [1;33m↷[0m locale en_US.UTF-8 (already present, skipping)
+  [1;33m↷[0m ROS 2 apt repo (already present, skipping)
+  [1;33m↷[0m Gazebo apt repo (already present, skipping)
+  [1;32m✓[0m NodeSource (Node 22) apt repo added
+W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list.d/nodesource.list:1 and /etc/apt/sources.list.d/nodesource.sources:1
+W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list.d/nodesource.list:1 and /etc/apt/sources.list.d/nodesource.sources:1
+W: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
+W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list.d/nodesource.list:1 and /etc/apt/sources.list.d/nodesource.sources:1
+W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list.d/nodesource.list:1 and /etc/apt/sources.list.d/nodesource.sources:1
+
+[1;34m[20:46:34] [1/7] ROS 2 Jazzy Desktop + dev tools[0m
+  [1;33m↷[0m python3-pip (already present, skipping)
+  [1;33m↷[0m python3-vcstool (already present, skipping)
+  [1;33m↷[0m python3-colcon-common-extensions (already present, skipping)
+  [1;33m↷[0m python3-rosdep (already present, skipping)
+  [1;33m↷[0m python3-argcomplete (already present, skipping)
+  [1;33m↷[0m ros-jazzy-desktop (already present, skipping)
+  [1;33m↷[0m ros-jazzy-ros-base (already present, skipping)
+  [1;33m↷[0m ros-dev-tools (already present, skipping)
+  → apt-get install: python3-venv ros-jazzy-rmw-cyclonedds-cpp
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package acl.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 183638 files and directories currently installed.)
+Preparing to unpack .../0-acl_2.3.2-1build1.1_amd64.deb ...
+Unpacking acl (2.3.2-1build1.1) ...
+Selecting previously unselected package python3-venv.
+Preparing to unpack .../1-python3-venv_3.12.3-0ubuntu2.1_amd64.deb ...
+Unpacking python3-venv (3.12.3-0ubuntu2.1) ...
+Selecting previously unselected package ros-jazzy-iceoryx-binding-c.
+Preparing to unpack .../2-ros-jazzy-iceoryx-binding-c_2.0.6-1noble.20260225.140829_amd64.deb ...
+Unpacking ros-jazzy-iceoryx-binding-c (2.0.6-1noble.20260225.140829) ...
+Selecting previously unselected package libattr1-dev:amd64.
+Preparing to unpack .../3-libattr1-dev_1%3a2.5.2-1build1.1_amd64.deb ...
+Unpacking libattr1-dev:amd64 (1:2.5.2-1build1.1) ...
+Selecting previously unselected package libacl1-dev:amd64.
+Preparing to unpack .../4-libacl1-dev_2.3.2-1build1.1_amd64.deb ...
+Unpacking libacl1-dev:amd64 (2.3.2-1build1.1) ...
+Selecting previously unselected package ros-jazzy-iceoryx-hoofs.
+Preparing to unpack .../5-ros-jazzy-iceoryx-hoofs_2.0.6-1noble.20260225.055330_amd64.deb ...
+Unpacking ros-jazzy-iceoryx-hoofs (2.0.6-1noble.20260225.055330) ...
+Selecting previously unselected package ros-jazzy-iceoryx-posh.
+Preparing to unpack .../6-ros-jazzy-iceoryx-posh_2.0.6-1noble.20260225.135341_amd64.deb ...
+Unpacking ros-jazzy-iceoryx-posh (2.0.6-1noble.20260225.135341) ...
+Selecting previously unselected package ros-jazzy-cyclonedds.
+Preparing to unpack .../7-ros-jazzy-cyclonedds_0.10.5-1noble.20260225.142613_amd64.deb ...
+Unpacking ros-jazzy-cyclonedds (0.10.5-1noble.20260225.142613) ...
+Selecting previously unselected package ros-jazzy-rmw-cyclonedds-cpp.
+Preparing to unpack .../8-ros-jazzy-rmw-cyclonedds-cpp_2.2.3-1noble.20260412.033317_amd64.deb ...
+Unpacking ros-jazzy-rmw-cyclonedds-cpp (2.2.3-1noble.20260412.033317) ...
+Setting up libattr1-dev:amd64 (1:2.5.2-1build1.1) ...
+Setting up ros-jazzy-iceoryx-binding-c (2.0.6-1noble.20260225.140829) ...
+Setting up acl (2.3.2-1build1.1) ...
+Setting up python3-venv (3.12.3-0ubuntu2.1) ...
+Setting up libacl1-dev:amd64 (2.3.2-1build1.1) ...
+Setting up ros-jazzy-iceoryx-hoofs (2.0.6-1noble.20260225.055330) ...
+Setting up ros-jazzy-iceoryx-posh (2.0.6-1noble.20260225.135341) ...
+Setting up ros-jazzy-cyclonedds (0.10.5-1noble.20260225.142613) ...
+Setting up ros-jazzy-rmw-cyclonedds-cpp (2.2.3-1noble.20260412.033317) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.7) ...
+W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list.d/nodesource.list:1 and /etc/apt/sources.list.d/nodesource.sources:1
+W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list.d/nodesource.list:1 and /etc/apt/sources.list.d/nodesource.sources:1
+
+[1;34m[20:46:37] [2/7] Gazebo Harmonic + ros_gz bridge[0m
+  [1;33m↷[0m gz-harmonic (already present, skipping)
+  [1;33m↷[0m ros-jazzy-ros-gz (already present, skipping)
+  [1;33m↷[0m ros-jazzy-ros-gz-bridge (already present, skipping)
+  [1;33m↷[0m ros-jazzy-ros-gz-sim (already present, skipping)
+  [1;33m↷[0m ros-jazzy-ros-gz-image (already present, skipping)
+
+[1;34m[20:46:37] [3/7] Nav2[0m
+  [1;33m↷[0m ros-jazzy-navigation2 (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-bringup (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-msgs (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-rviz-plugins (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-simple-commander (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-mppi-controller (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-velocity-smoother (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-collision-monitor (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-behavior-tree (already present, skipping)
+  [1;33m↷[0m ros-jazzy-nav2-minimal-tb3-sim (already present, skipping)
+
+[1;34m[20:46:37] [4/7] SLAM Toolbox + foxglove_bridge + TurtleBot3[0m
+  [1;33m↷[0m ros-jazzy-slam-toolbox (already present, skipping)
+  [1;33m↷[0m ros-jazzy-turtlebot3 (already present, skipping)
+  [1;33m↷[0m ros-jazzy-turtlebot3-msgs (already present, skipping)
+  [1;33m↷[0m ros-jazzy-turtlebot3-simulations (already present, skipping)
+  [1;33m↷[0m ros-jazzy-turtlebot3-gazebo (already present, skipping)
+  [1;33m↷[0m ros-jazzy-rviz2 (already present, skipping)
+  [1;33m↷[0m ros-jazzy-robot-state-publisher (already present, skipping)
+  [1;33m↷[0m ros-jazzy-joint-state-publisher (already present, skipping)
+  [1;33m↷[0m ros-jazzy-xacro (already present, skipping)
+  [1;33m↷[0m ros-jazzy-tf2-tools (already present, skipping)
+  → apt-get install: ros-jazzy-foxglove-bridge
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package ros-jazzy-rosx-introspection.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 184503 files and directories currently installed.)
+Preparing to unpack .../ros-jazzy-rosx-introspection_2.3.0-1noble.20260412.044120_amd64.deb ...
+Unpacking ros-jazzy-rosx-introspection (2.3.0-1noble.20260412.044120) ...
+Selecting previously unselected package ros-jazzy-foxglove-bridge.
+Preparing to unpack .../ros-jazzy-foxglove-bridge_3.2.6-1noble.20260412.065650_amd64.deb ...
+Unpacking ros-jazzy-foxglove-bridge (3.2.6-1noble.20260412.065650) ...
+Setting up ros-jazzy-rosx-introspection (2.3.0-1noble.20260412.044120) ...
+Setting up ros-jazzy-foxglove-bridge (3.2.6-1noble.20260412.065650) ...
+W: Target Packages (main/binary-amd64/Packages) is configured multiple times in /etc/apt/sources.list.d/nodesource.list:1 and /etc/apt/sources.list.d/nodesource.sources:1
+W: Target Packages (main/binary-all/Packages) is configured multiple times in /etc/apt/sources.list.d/nodesource.list:1 and /etc/apt/sources.list.d/nodesource.sources:1
+  [1;33m↷[0m rosdep init (already present, skipping)
+reading in sources list data from /etc/ros/rosdep/sources.list.d
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/osx-homebrew.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/base.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/python.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/rosdep/ruby.yaml
+Hit https://raw.githubusercontent.com/ros/rosdistro/master/releases/fuerte.yaml
+Query rosdistro index https://raw.githubusercontent.com/ros/rosdistro/master/index-v4.yaml
+Skip distro "ardent" different from requested "jazzy"
+Skip distro "bouncy" different from requested "jazzy"
+Skip distro "crystal" different from requested "jazzy"
+Skip distro "dashing" different from requested "jazzy"
+Skip distro "eloquent" different from requested "jazzy"
+Skip distro "foxy" different from requested "jazzy"
+Skip distro "galactic" different from requested "jazzy"
+Skip distro "groovy" different from requested "jazzy"
+Skip distro "humble" different from requested "jazzy"
+Skip distro "hydro" different from requested "jazzy"
+Skip distro "indigo" different from requested "jazzy"
+Skip distro "iron" different from requested "jazzy"
+Skip distro "jade" different from requested "jazzy"
+Add distro "jazzy"
+Skip distro "kilted" different from requested "jazzy"
+Skip distro "kinetic" different from requested "jazzy"
+Skip distro "lunar" different from requested "jazzy"
+Skip distro "lyrical" different from requested "jazzy"
+Skip distro "melodic" different from requested "jazzy"
+Skip distro "noetic" different from requested "jazzy"
+Skip distro "rolling" different from requested "jazzy"
+updated cache in /home/dev/.ros/rosdep/sources.cache
+  [1;33m↷[0m /etc/profile.d/ros2.sh (already present, skipping)
+
+[1;34m[20:46:44] [5/7] Node.js 22 + Claude Code[0m
+  [1;33m↷[0m node v22.22.2 (already present, skipping)
+  [1;33m↷[0m claude code 2.1.140 (Claude Code) (already present, skipping)
+
+[1;34m[20:46:44] [6/7] cloudflared[0m
+Selecting previously unselected package cloudflared.
+(Reading database ... 184587 files and directories currently installed.)
+Preparing to unpack /tmp/cloudflared.deb ...
+Unpacking cloudflared (2026.5.0) ...
+Setting up cloudflared (2026.5.0) ...
+  [1;32m✓[0m cloudflared installed: cloudflared version 2026.5.0 (built 2026-05-13-11:24 UTC)
+
+[1;34m[20:46:45] [7/7] dev user, sudo NOPASSWD, bashrc[0m
+  [1;33m↷[0m user dev exists (already present, skipping)
+  [1;32m✓[0m password set for dev
+  [1;32m✓[0m sudoers NOPASSWD for dev
+  [1;32m✓[0m /home/dev/.bashrc configured (alias claude, source ROS 2, workspaces)
+
+[1;34m[20:46:45] Building workspaces with colcon[0m
+  → building /workspace/amr_pallet
+Topological order
+- amr_pallet (ros.ament_python)
+Starting >>> amr_pallet
+--- output: amr_pallet
+usage: setup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]
+   or: setup.py --help [cmd1 cmd2 ...]
+   or: setup.py --help-commands
+   or: setup.py cmd --help
+
+error: option --editable not recognized
+---
+--- stderr: amr_pallet
+usage: setup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]
+   or: setup.py --help [cmd1 cmd2 ...]
+   or: setup.py --help-commands
+   or: setup.py cmd --help
+
+error: option --editable not recognized
+---
+Failed   <<< amr_pallet [1.53s, exited with code 1]
+
+Summary: 0 packages finished [1.77s]
+  1 package failed: amr_pallet
+  1 package had stderr output: amr_pallet
+  [1;33m![0m amr_pallet build had errors (see log)
+  → building /workspace/nav_test
+Topological order
+- nav_test (ros.ament_python)
+Starting >>> nav_test
+--- output: nav_test
+usage: setup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]
+   or: setup.py --help [cmd1 cmd2 ...]
+   or: setup.py --help-commands
+   or: setup.py cmd --help
+
+error: option --editable not recognized
+---
+--- stderr: nav_test
+usage: setup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]
+   or: setup.py --help [cmd1 cmd2 ...]
+   or: setup.py --help-commands
+   or: setup.py cmd --help
+
+error: option --editable not recognized
+---
+Failed   <<< nav_test [1.47s, exited with code 1]
+
+Summary: 0 packages finished [1.70s]
+  1 package failed: nav_test
+  1 package had stderr output: nav_test
+  [1;33m![0m nav_test build had errors (see log)
+  → building /workspace/tb3_nav_demo
+Topological order
+- tb3_waypoint_nav (ros.ament_python)
+Starting >>> tb3_waypoint_nav
+--- output: tb3_waypoint_nav
+usage: setup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]
+   or: setup.py --help [cmd1 cmd2 ...]
+   or: setup.py --help-commands
+   or: setup.py cmd --help
+
+error: option --editable not recognized
+---
+--- stderr: tb3_waypoint_nav
+usage: setup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]
+   or: setup.py --help [cmd1 cmd2 ...]
+   or: setup.py --help-commands
+   or: setup.py cmd --help
+
+error: option --editable not recognized
+---
+Failed   <<< tb3_waypoint_nav [1.50s, exited with code 1]
+
+Summary: 0 packages finished [1.74s]
+  1 package failed: tb3_waypoint_nav
+  1 package had stderr output: tb3_waypoint_nav
+  [1;33m![0m tb3_nav_demo build had errors (see log)
+
+[1;34m[20:46:53] Verification[0m
+  [1;32m✓[0m ROS 2 Jazzy (/opt/ros/jazzy/setup.bash exists)
+  [1;32m✓[0m ros2 CLI runs
+  [1;32m✓[0m Gazebo Harmonic (gz binary)
+  [1;32m✓[0m Nav2 bringup pkg
+  [1;32m✓[0m SLAM Toolbox pkg
+  [1;32m✓[0m foxglove_bridge pkg
+  [1;32m✓[0m cloudflared binary
+  [1;32m✓[0m Node.js 22
+  [1;32m✓[0m Claude Code CLI
+  [1;32m✓[0m user dev exists
+  [1;32m✓[0m dev has sudo NOPASSWD
+  [1;32m✓[0m dev bashrc has claude alias
+  [1;32m✓[0m dev bashrc sources ROS 2
+  [1;32m✓[0m workspace amr_pallet built (install/setup.bash)
+  [1;32m✓[0m workspace nav_test built (install/setup.bash)
+  [1;32m✓[0m workspace tb3_nav_demo built (install/setup.bash)
+
+============================================================
+  ✓ setup_master.sh COMPLETE — all checks passed
+  Wed May 13 08:46:54 PM UTC 2026
+============================================================

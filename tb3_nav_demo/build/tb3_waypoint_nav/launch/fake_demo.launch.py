@@ -1,1 +1,0 @@
-/workspace/tb3_nav_demo/src/tb3_waypoint_nav/launch/fake_demo.launch.py

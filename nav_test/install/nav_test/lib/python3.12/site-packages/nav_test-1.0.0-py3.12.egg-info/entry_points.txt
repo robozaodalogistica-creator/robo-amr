@@ -1,0 +1,3 @@
+[console_scripts]
+navigator = nav_test.navigator:main
+robot_sim = nav_test.robot_sim:main

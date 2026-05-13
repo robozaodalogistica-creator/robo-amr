@@ -1,0 +1,42 @@
+running egg_info
+creating ../../build/nav_test/nav_test.egg-info
+writing ../../build/nav_test/nav_test.egg-info/PKG-INFO
+writing dependency_links to ../../build/nav_test/nav_test.egg-info/dependency_links.txt
+writing entry points to ../../build/nav_test/nav_test.egg-info/entry_points.txt
+writing requirements to ../../build/nav_test/nav_test.egg-info/requires.txt
+writing top-level names to ../../build/nav_test/nav_test.egg-info/top_level.txt
+writing manifest file '../../build/nav_test/nav_test.egg-info/SOURCES.txt'
+reading manifest file '../../build/nav_test/nav_test.egg-info/SOURCES.txt'
+writing manifest file '../../build/nav_test/nav_test.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /workspace/nav_test/build/nav_test/build/lib/nav_test
+copying nav_test/__init__.py -> /workspace/nav_test/build/nav_test/build/lib/nav_test
+copying nav_test/navigator.py -> /workspace/nav_test/build/nav_test/build/lib/nav_test
+copying nav_test/robot_sim.py -> /workspace/nav_test/build/nav_test/build/lib/nav_test
+running install
+running install_lib
+creating /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test
+copying /workspace/nav_test/build/nav_test/build/lib/nav_test/robot_sim.py -> /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test
+copying /workspace/nav_test/build/nav_test/build/lib/nav_test/navigator.py -> /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test
+copying /workspace/nav_test/build/nav_test/build/lib/nav_test/__init__.py -> /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test
+byte-compiling /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test/robot_sim.py to robot_sim.cpython-312.pyc
+byte-compiling /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test/navigator.py to navigator.cpython-312.pyc
+byte-compiling /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test/__init__.py to __init__.cpython-312.pyc
+running install_data
+creating /workspace/nav_test/install/nav_test/share/ament_index/resource_index/packages
+copying resource/nav_test -> /workspace/nav_test/install/nav_test/share/ament_index/resource_index/packages
+copying package.xml -> /workspace/nav_test/install/nav_test/share/nav_test
+creating /workspace/nav_test/install/nav_test/share/nav_test/launch
+copying launch/demo.launch.py -> /workspace/nav_test/install/nav_test/share/nav_test/launch
+creating /workspace/nav_test/install/nav_test/share/nav_test/config
+copying config/nav2_params.yaml -> /workspace/nav_test/install/nav_test/share/nav_test/config
+creating /workspace/nav_test/install/nav_test/share/nav_test/maps
+copying maps/free_space.yaml -> /workspace/nav_test/install/nav_test/share/nav_test/maps
+copying maps/free_space.pgm -> /workspace/nav_test/install/nav_test/share/nav_test/maps
+running install_egg_info
+Copying ../../build/nav_test/nav_test.egg-info to /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test-1.0.0-py3.12.egg-info
+running install_scripts
+Installing navigator script to /workspace/nav_test/install/nav_test/bin
+Installing robot_sim script to /workspace/nav_test/install/nav_test/bin
+writing list of installed files to '/workspace/nav_test/build/nav_test/install.log'

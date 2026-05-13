@@ -1,0 +1,4 @@
+[console_scripts]
+robot_sim = tb3_waypoint_nav.robot_sim:main
+waypoint_monitor = tb3_waypoint_nav.waypoint_monitor:main
+waypoint_navigator = tb3_waypoint_nav.waypoint_navigator:main

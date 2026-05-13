@@ -1,0 +1,72 @@
+[0.000000] (-) TimerEvent: {}
+[0.000261] (nav_test) JobQueued: {'identifier': 'nav_test', 'dependencies': OrderedDict()}
+[0.000375] (nav_test) JobStarted: {'identifier': 'nav_test'}
+[0.098859] (-) TimerEvent: {}
+[0.199141] (-) TimerEvent: {}
+[0.299403] (-) TimerEvent: {}
+[0.399900] (-) TimerEvent: {}
+[0.500136] (-) TimerEvent: {}
+[0.600446] (-) TimerEvent: {}
+[0.700816] (-) TimerEvent: {}
+[0.801176] (-) TimerEvent: {}
+[0.901506] (-) TimerEvent: {}
+[1.001853] (-) TimerEvent: {}
+[1.102779] (-) TimerEvent: {}
+[1.171289] (nav_test) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../build/nav_test', 'build', '--build-base', '/workspace/nav_test/build/nav_test/build', 'install', '--record', '/workspace/nav_test/build/nav_test/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/workspace/nav_test/src/nav_test', 'env': {'MAIL': '/var/mail/dev', 'GZ_SIM_RESOURCE_PATH': '/opt/ros/jazzy/share', 'AI_AGENT': 'claude-code_2-1-140_agent', 'USER': 'dev', 'CLAUDE_CODE_ENTRYPOINT': 'cli', 'GZ_CONFIG_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor/share/gz:/opt/ros/jazzy/opt/sdformat_vendor/share/gz:/opt/ros/jazzy/opt/gz_gui_vendor/share/gz:/opt/ros/jazzy/opt/gz_transport_vendor/share/gz:/opt/ros/jazzy/opt/gz_rendering_vendor/share/gz:/opt/ros/jazzy/opt/gz_plugin_vendor/share/gz:/opt/ros/jazzy/opt/gz_fuel_tools_vendor/share/gz:/opt/ros/jazzy/opt/gz_msgs_vendor/share/gz:/opt/ros/jazzy/opt/gz_common_vendor/share/gz', 'GIT_EDITOR': 'true', 'SHLVL': '2', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor/lib:/opt/ros/jazzy/opt/gz_sensors_vendor/lib:/opt/ros/jazzy/opt/gz_physics_vendor/lib:/opt/ros/jazzy/opt/sdformat_vendor/lib:/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_gui_vendor/lib:/opt/ros/jazzy/opt/gz_transport_vendor/lib:/opt/ros/jazzy/opt/gz_rendering_vendor/lib:/opt/ros/jazzy/opt/gz_plugin_vendor/lib:/opt/ros/jazzy/opt/gz_fuel_tools_vendor/lib:/opt/ros/jazzy/opt/gz_msgs_vendor/lib:/opt/ros/jazzy/opt/gz_common_vendor/lib:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_tools_vendor/lib:/opt/ros/jazzy/opt/gz_ogre_next_vendor/lib:/opt/ros/jazzy/opt/gz_dartsim_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'HOME': '/home/dev', 'OLDPWD': '/home/dev', 'ROS_PYTHON_VERSION': '3', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'dev', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'TERM': 'xterm', 'PATH': '/opt/ros/jazzy/opt/gz_msgs_vendor/bin:/opt/ros/jazzy/opt/gz_tools_vendor/bin:/opt/ros/jazzy/opt/gz_ogre_next_vendor/bin:/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin', 'COREPACK_ENABLE_AUTO_PIN': '0', 'CLAUDE_EFFORT': 'high', 'NoDefaultCurrentDirectoryInExePath': '1', 'LANG': 'en_US.UTF-8', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:', 'AMENT_PREFIX_PATH': '/opt/ros/jazzy', 'SHELL': '/bin/bash', 'CLAUDE_CODE_SESSION_ID': '80e1e4d3-6f94-41dc-8de7-26c4b40a1e76', 'CLAUDECODE': '1', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'PWD': '/workspace/nav_test/build/nav_test', 'TURTLEBOT3_MODEL': 'burger', 'LC_ALL': 'en_US.UTF-8', 'CLAUDE_CODE_EXECPATH': '/usr/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe', 'PYTHONPATH': '/workspace/nav_test/build/nav_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/workspace/nav_test/install/nav_test/lib/python3.12/site-packages:/opt/ros/jazzy/lib/python3.12/site-packages', 'COLCON': '1', 'CMAKE_PREFIX_PATH': '/opt/ros/jazzy/opt/gz_sim_vendor:/opt/ros/jazzy/opt/gz_sensors_vendor:/opt/ros/jazzy/opt/gz_physics_vendor:/opt/ros/jazzy/opt/sdformat_vendor:/opt/ros/jazzy/opt/gz_gui_vendor:/opt/ros/jazzy/opt/gz_transport_vendor:/opt/ros/jazzy/opt/gz_rendering_vendor:/opt/ros/jazzy/opt/gz_plugin_vendor:/opt/ros/jazzy/opt/gz_fuel_tools_vendor:/opt/ros/jazzy/opt/gz_msgs_vendor:/opt/ros/jazzy/opt/gz_common_vendor:/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_tools_vendor:/opt/ros/jazzy/opt/gz_ogre_next_vendor:/opt/ros/jazzy/opt/gz_dartsim_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor'}, 'shell': False}
+[1.202861] (-) TimerEvent: {}
+[1.303106] (-) TimerEvent: {}
+[1.403374] (-) TimerEvent: {}
+[1.503679] (-) TimerEvent: {}
+[1.603997] (-) TimerEvent: {}
+[1.682370] (nav_test) StdoutLine: {'line': b'running egg_info\n'}
+[1.704123] (-) TimerEvent: {}
+[1.716822] (nav_test) StdoutLine: {'line': b'creating ../../build/nav_test/nav_test.egg-info\n'}
+[1.718243] (nav_test) StdoutLine: {'line': b'writing ../../build/nav_test/nav_test.egg-info/PKG-INFO\n'}
+[1.728743] (nav_test) StdoutLine: {'line': b'writing dependency_links to ../../build/nav_test/nav_test.egg-info/dependency_links.txt\n'}
+[1.732448] (nav_test) StdoutLine: {'line': b'writing entry points to ../../build/nav_test/nav_test.egg-info/entry_points.txt\n'}
+[1.736005] (nav_test) StdoutLine: {'line': b'writing requirements to ../../build/nav_test/nav_test.egg-info/requires.txt\n'}
+[1.739332] (nav_test) StdoutLine: {'line': b'writing top-level names to ../../build/nav_test/nav_test.egg-info/top_level.txt\n'}
+[1.743315] (nav_test) StdoutLine: {'line': b"writing manifest file '../../build/nav_test/nav_test.egg-info/SOURCES.txt'\n"}
+[1.804244] (-) TimerEvent: {}
+[1.822417] (nav_test) StdoutLine: {'line': b"reading manifest file '../../build/nav_test/nav_test.egg-info/SOURCES.txt'\n"}
+[1.837149] (nav_test) StdoutLine: {'line': b"writing manifest file '../../build/nav_test/nav_test.egg-info/SOURCES.txt'\n"}
+[1.840638] (nav_test) StdoutLine: {'line': b'running build\n'}
+[1.841246] (nav_test) StdoutLine: {'line': b'running build_py\n'}
+[1.841858] (nav_test) StdoutLine: {'line': b'creating /workspace/nav_test/build/nav_test/build/lib/nav_test\n'}
+[1.844737] (nav_test) StdoutLine: {'line': b'copying nav_test/__init__.py -> /workspace/nav_test/build/nav_test/build/lib/nav_test\n'}
+[1.848427] (nav_test) StdoutLine: {'line': b'copying nav_test/navigator.py -> /workspace/nav_test/build/nav_test/build/lib/nav_test\n'}
+[1.855054] (nav_test) StdoutLine: {'line': b'copying nav_test/robot_sim.py -> /workspace/nav_test/build/nav_test/build/lib/nav_test\n'}
+[1.863073] (nav_test) StdoutLine: {'line': b'running install\n'}
+[1.868026] (nav_test) StdoutLine: {'line': b'running install_lib\n'}
+[1.904330] (-) TimerEvent: {}
+[1.906016] (nav_test) StdoutLine: {'line': b'creating /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test\n'}
+[1.907924] (nav_test) StdoutLine: {'line': b'copying /workspace/nav_test/build/nav_test/build/lib/nav_test/robot_sim.py -> /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test\n'}
+[1.918343] (nav_test) StdoutLine: {'line': b'copying /workspace/nav_test/build/nav_test/build/lib/nav_test/navigator.py -> /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test\n'}
+[1.926318] (nav_test) StdoutLine: {'line': b'copying /workspace/nav_test/build/nav_test/build/lib/nav_test/__init__.py -> /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test\n'}
+[1.929986] (nav_test) StdoutLine: {'line': b'byte-compiling /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test/robot_sim.py to robot_sim.cpython-312.pyc\n'}
+[1.938135] (nav_test) StdoutLine: {'line': b'byte-compiling /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test/navigator.py to navigator.cpython-312.pyc\n'}
+[1.946391] (nav_test) StdoutLine: {'line': b'byte-compiling /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test/__init__.py to __init__.cpython-312.pyc\n'}
+[1.952911] (nav_test) StdoutLine: {'line': b'running install_data\n'}
+[1.953761] (nav_test) StdoutLine: {'line': b'creating /workspace/nav_test/install/nav_test/share/ament_index/resource_index/packages\n'}
+[1.956246] (nav_test) StdoutLine: {'line': b'copying resource/nav_test -> /workspace/nav_test/install/nav_test/share/ament_index/resource_index/packages\n'}
+[1.960161] (nav_test) StdoutLine: {'line': b'copying package.xml -> /workspace/nav_test/install/nav_test/share/nav_test\n'}
+[1.964958] (nav_test) StdoutLine: {'line': b'creating /workspace/nav_test/install/nav_test/share/nav_test/launch\n'}
+[1.966071] (nav_test) StdoutLine: {'line': b'copying launch/demo.launch.py -> /workspace/nav_test/install/nav_test/share/nav_test/launch\n'}
+[1.972200] (nav_test) StdoutLine: {'line': b'creating /workspace/nav_test/install/nav_test/share/nav_test/config\n'}
+[1.973543] (nav_test) StdoutLine: {'line': b'copying config/nav2_params.yaml -> /workspace/nav_test/install/nav_test/share/nav_test/config\n'}
+[1.978962] (nav_test) StdoutLine: {'line': b'creating /workspace/nav_test/install/nav_test/share/nav_test/maps\n'}
+[1.980062] (nav_test) StdoutLine: {'line': b'copying maps/free_space.yaml -> /workspace/nav_test/install/nav_test/share/nav_test/maps\n'}
+[1.986735] (nav_test) StdoutLine: {'line': b'copying maps/free_space.pgm -> /workspace/nav_test/install/nav_test/share/nav_test/maps\n'}
+[1.993339] (nav_test) StdoutLine: {'line': b'running install_egg_info\n'}
+[2.004411] (-) TimerEvent: {}
+[2.030324] (nav_test) StdoutLine: {'line': b'Copying ../../build/nav_test/nav_test.egg-info to /workspace/nav_test/install/nav_test/lib/python3.12/site-packages/nav_test-1.0.0-py3.12.egg-info\n'}
+[2.084271] (nav_test) StdoutLine: {'line': b'running install_scripts\n'}
+[2.104509] (-) TimerEvent: {}
+[2.170580] (nav_test) StdoutLine: {'line': b'Installing navigator script to /workspace/nav_test/install/nav_test/bin\n'}
+[2.174537] (nav_test) StdoutLine: {'line': b'Installing robot_sim script to /workspace/nav_test/install/nav_test/bin\n'}
+[2.181420] (nav_test) StdoutLine: {'line': b"writing list of installed files to '/workspace/nav_test/build/nav_test/install.log'\n"}
+[2.204089] (nav_test) CommandEnded: {'returncode': 0}
+[2.205610] (-) TimerEvent: {}
+[2.304256] (nav_test) JobEnded: {'identifier': 'nav_test', 'rc': 0}
+[2.309059] (-) TimerEvent: {}
+[2.309154] (-) EventReactorShutdown: {}

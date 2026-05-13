@@ -1,0 +1,44 @@
+running egg_info
+creating ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info
+writing ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/PKG-INFO
+writing dependency_links to ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/dependency_links.txt
+writing entry points to ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/entry_points.txt
+writing requirements to ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/requires.txt
+writing top-level names to ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/top_level.txt
+writing manifest file '../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/SOURCES.txt'
+reading manifest file '../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/SOURCES.txt'
+writing manifest file '../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build/lib/tb3_waypoint_nav
+copying tb3_waypoint_nav/waypoint_monitor.py -> /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build/lib/tb3_waypoint_nav
+copying tb3_waypoint_nav/waypoint_navigator.py -> /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build/lib/tb3_waypoint_nav
+copying tb3_waypoint_nav/__init__.py -> /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build/lib/tb3_waypoint_nav
+running install
+running install_lib
+creating /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav
+copying /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build/lib/tb3_waypoint_nav/__init__.py -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav
+copying /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build/lib/tb3_waypoint_nav/waypoint_navigator.py -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav
+copying /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build/lib/tb3_waypoint_nav/waypoint_monitor.py -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav
+byte-compiling /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav/__init__.py to __init__.cpython-312.pyc
+byte-compiling /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav/waypoint_navigator.py to waypoint_navigator.cpython-312.pyc
+byte-compiling /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav/waypoint_monitor.py to waypoint_monitor.cpython-312.pyc
+running install_data
+creating /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/ament_index/resource_index/packages
+copying resource/tb3_waypoint_nav -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/ament_index/resource_index/packages
+copying package.xml -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav
+creating /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/launch
+copying launch/fake_demo.launch.py -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/launch
+copying launch/demo.launch.py -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/launch
+creating /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/config
+copying config/waypoints.yaml -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/config
+copying config/nav2_params.yaml -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/config
+creating /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/maps
+copying maps/tb3_world.yaml -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/maps
+copying maps/tb3_world.pgm -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/maps
+running install_egg_info
+Copying ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info to /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav-1.0.0-py3.12.egg-info
+running install_scripts
+Installing waypoint_monitor script to /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/tb3_waypoint_nav
+Installing waypoint_navigator script to /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/tb3_waypoint_nav
+writing list of installed files to '/workspace/tb3_nav_demo/build/tb3_waypoint_nav/install.log'

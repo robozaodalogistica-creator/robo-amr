@@ -1,0 +1,23 @@
+[1.108s] Invoking command in '/workspace/tb3_nav_demo/src/tb3_waypoint_nav': PYTHONPATH=/workspace/tb3_nav_demo/build/tb3_waypoint_nav/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/tb3_waypoint_nav build --build-base /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build install --record /workspace/tb3_nav_demo/build/tb3_waypoint_nav/install.log --single-version-externally-managed install_data
+[1.598s] running egg_info
+[1.633s] writing ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/PKG-INFO
+[1.638s] writing dependency_links to ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/dependency_links.txt
+[1.647s] writing entry points to ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/entry_points.txt
+[1.652s] writing requirements to ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/requires.txt
+[1.655s] writing top-level names to ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/top_level.txt
+[1.741s] reading manifest file '../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/SOURCES.txt'
+[1.758s] writing manifest file '../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info/SOURCES.txt'
+[1.760s] running build
+[1.761s] running build_py
+[1.767s] running install
+[1.772s] running install_lib
+[1.822s] running install_data
+[1.829s] copying launch/loopback_demo.launch.py -> /workspace/tb3_nav_demo/install/tb3_waypoint_nav/share/tb3_waypoint_nav/launch
+[1.848s] running install_egg_info
+[1.888s] removing '/workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav-1.0.0-py3.12.egg-info' (and everything under it)
+[1.894s] Copying ../../build/tb3_waypoint_nav/tb3_waypoint_nav.egg-info to /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages/tb3_waypoint_nav-1.0.0-py3.12.egg-info
+[1.951s] running install_scripts
+[2.022s] Installing waypoint_monitor script to /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/tb3_waypoint_nav
+[2.025s] Installing waypoint_navigator script to /workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/tb3_waypoint_nav
+[2.031s] writing list of installed files to '/workspace/tb3_nav_demo/build/tb3_waypoint_nav/install.log'
+[2.054s] Invoked command in '/workspace/tb3_nav_demo/src/tb3_waypoint_nav' returned '0': PYTHONPATH=/workspace/tb3_nav_demo/build/tb3_waypoint_nav/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/workspace/tb3_nav_demo/install/tb3_waypoint_nav/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/tb3_waypoint_nav build --build-base /workspace/tb3_nav_demo/build/tb3_waypoint_nav/build install --record /workspace/tb3_nav_demo/build/tb3_waypoint_nav/install.log --single-version-externally-managed install_data

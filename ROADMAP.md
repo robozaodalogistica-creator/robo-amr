@@ -1,7 +1,7 @@
 # Roadmap — AMR Pallet Galp
 
 > **Documento vivo de planejamento.** Atualize sempre que decidir algo.
-> Última atualização: 2026-05-13
+> Última atualização: 2026-05-14
 
 ---
 
@@ -13,38 +13,59 @@
 
 ## 2. Estado atual
 
-**O que funciona hoje** (ver `docs/ROBOT_ANALYSIS.md` para detalhes do `amr_pallet` e `docs/RBOT_ANALYSIS.md` para o `rbot`):
+**Marco**: o `rbot` foi adotado como base do projeto (ver Decisão #003, §6).
+Código vive em `src/rbot/` sob Apache 2.0 com atribuição em `NOTICE.md` e
+`THIRD_PARTY_LICENSES.md`. Detalhes técnicos em `docs/RBOT_ANALYSIS.md`;
+referência do protótipo anterior em `docs/ROBOT_ANALYSIS.md`.
+
+**O que funciona hoje**:
 
 | Componente | Status atual | Observação |
 |---|---|---|
 | Workspace ROS 2 Jazzy | ✅ Instalado e funcionando | `setup_master.sh` reinstala em ~10 min |
-| Gazebo Harmonic | ✅ Rodando com VNC streaming | `start_gui.sh`, `start_amr_gui.sh` |
-| `amr_pallet` (protótipo atual) | 🟡 Anda no galpão fake, sem física real | URDF cosmético, LiDAR fake (todos `inf`), `robot_sim.py` integra `cmd_vel` por dead reckoning |
-| Nav2 (planner DWB básico) | 🟡 Funciona com `LaserScan` fake | Sem obstacle avoidance real porque LiDAR não enxerga nada |
-| Mapa do galpão | 🟡 `galp_amr.yaml` placeholder | Sem mundo Galp real modelado |
-| `rbot` clonado | ✅ Stack alternativa avaliada | URDF real, MPPI+SMAC, EKF+AMCL, SLAM Toolbox — não integrado ainda |
-| Documentação | ✅ ARCHITECTURE.md, ONBOARDING.md, ROBOT_ANALYSIS.md, RBOT_ANALYSIS.md, README.md no repo |
+| Gazebo Harmonic | ✅ GUI streamada via VNC (`DISPLAY=:1`) | Cloudflared expõe URL pública em `/tmp/gui_stream/public_url` |
+| `rbot` adotado como base | ✅ `colcon build` OK, robô rodando no Gazebo | URDF real com física (massa, inércia), 6 sensores, diff-drive por torque |
+| Robô na simulação | ✅ Gazebo + spawn + controllers ativos | `rlai_bot` spawned em `small_warehouse`, `diff_drive_controller` e `joint_state_broadcaster` ativos |
+| Sensores | ✅ LiDAR 2D + IMU + RGB-D + diff-drive feedback publicando | Câmera estéreo, LiDAR 3D, GPS disponíveis (opt-in via launch args) |
+| Localização | ✅ EKF (`robot_localization`) + AMCL ativos | EKF funde IMU + odom; AMCL provê `map→odom` |
+| Mapping | ✅ SLAM Toolbox `online_async` no `rbot` (launch pronto) | Ainda não rodado contra mundo definitivo |
+| Nav2 (estado-da-arte) | ✅ Lifecycle todo `ACTIVE` | SMAC Hybrid-A* (planner) + MPPI (controller) + behavior tree + waypoint follower; goal `NavigateToPose` testado SUCCEEDED |
+| Stack completa | ✅ ROS 2 Jazzy + Gazebo Harmonic + Nav2 + SLAM Toolbox + EKF + AMCL | Tudo no mesmo workspace, sobe via `ros2 launch rlai_bringup simulation.launch.py` + `rlai_navigation navigation.launch.py` |
+| Documentação | ✅ `ARCHITECTURE.md`, `ONBOARDING.md`, `ROBOT_ANALYSIS.md`, `RBOT_ANALYSIS.md`, `NOTICE.md`, `THIRD_PARTY_LICENSES.md`, `README.md` |
 
-**Limitações que travam o produto** (ordenadas por impacto):
-1. Sem física real → impossível validar tração, escorregamento, dinâmica
-2. LiDAR fake → impossível validar Nav2 com obstáculos
-3. Sem mecanismo de elevação → não é uma empilhadeira, é só um carrinho
-4. Sem mundo Galp modelado → testes não representam realidade
-5. Falta lógica de docking de pallet (AprilTag/visão)
+**Lacunas atuais** (o que falta para virar empilhadeira AMR de galpão):
+1. **Sem garfo elevador** (junta `prismatic`) — robô anda, não levanta nada. Não tem em `rbot`; precisa ser adicionado por nós.
+2. **Sem mundo Galp modelado** — `rbot` traz `small_warehouse`/`office_floor`; precisamos portar `galp_amr.world` (pallets, doca, expedição) do antigo `amr_pallet`.
+3. **Sem missão logística** — `logistics_mission` (estado pickup → transit → drop) ainda no antigo `amr_pallet`; precisa ser portada por cima do rbot.
+4. **Sem docking de pallet** (AprilTag/visão) — alinhamento fino antes de elevar o garfo (±2 cm).
+5. **Sem fleet** — operação multi-robô e coordenação de zona ainda não modeladas.
 
 ---
 
 ## 3. Objetivos atuais (próximas 2 semanas)
 
-> **Foco**: sair do "robô fake" para um robô que **simula como um robô de verdade**.
+> **Foco**: portar nossa lógica de pallet/missão por cima do esqueleto do `rbot`
+> e fechar a primeira missão pickup→deliver simulada.
 
-- [x] **Avaliar se partimos do `rbot` ou continuamos com `amr_pallet`** — **CONCLUÍDO: adotamos `rbot` como base.** Código importado para `src/rbot/` (Apache 2.0, ver `NOTICE.md` e `THIRD_PARTY_LICENSES.md`). A partir de agora modificamos livremente para o caso de uso AMR-de-pallet em galpão robô-only; portamos nossa lógica de missão por cima do esqueleto do rbot.
-- [ ] **Construir URDF real do robô com física** — massa, tensores de inércia, joints `continuous` para rodas, `fixed` para sensores. Se for adoção de `rbot`, já temos pronto. Se mantermos `amr_pallet`, é trabalho do zero.
-- [ ] **LiDAR funcionando** — raycast real do Gazebo (`gpu_lidar` plugin), 360° / 720 raios / σ ≈ 0.01 m. Substituir o `LaserScan` fake do `robot_sim.py`.
-- [ ] **Plugin diff-drive (substituir `robot_sim.py`)** — usar `gz_ros2_control` + `diff_drive_controller` do `ros2_control`. Move o robô por torque nas juntas, não por teleporte.
-- [ ] **Mecanismo de elevação (junta `prismatic`)** — adicionar garfo ao URDF: link `fork_link` ligado ao `base_link` via joint prismatic em z, curso 0.0–0.20 m, controlador `position_controllers/JointPositionController`. Simular peso de pallet (até 500 kg) como link infantil que prende quando elevado.
+### Já temos (herdado do `rbot` adotado)
 
-**Critério de aceitação da fase**: rodar `ros2 launch ... simulation.launch.py`, dar `Nav2 Goal` no RViz, ver o robô andar por torque real, desviar de obstáculos vistos pelo LiDAR, parar embaixo de um pallet, elevar o garfo, e arrastar o pallet.
+- [x] **Decisão de base**: adotar `rbot` como esqueleto — Decisão #003, §6.
+- [x] **URDF real do robô com física** — massa, tensores de inércia, joints `continuous` para rodas, `fixed` para sensores. Em `src/rbot/robot/rlai_description/`.
+- [x] **LiDAR funcionando (raycast real)** — `gpu_lidar` plugin do Gazebo Harmonic publicando `/scan`. LiDAR 2D + LiDAR 3D (opt-in) disponíveis.
+- [x] **Plugin diff-drive** — `gz_ros2_control` + `diff_drive_controller` do `ros2_control`. Move o robô por torque nas juntas, substitui completamente o `robot_sim.py` do antigo `amr_pallet`.
+- [x] **SLAM real** — `slam_toolbox` `online_async` configurado em `src/rbot/mapping/rlai_mapping/`.
+- [x] **EKF e AMCL configurados** — `robot_localization` (EKF) funde IMU + odom para `odom→base_footprint`; AMCL provê `map→odom`. Em `src/rbot/localization/rlai_localization/`.
+- [x] **6 sensores**: LiDAR 2D, LiDAR 3D, IMU, câmera RGB-D, câmera estéreo, GPS — todos toggleáveis via launch args do `simulation.launch.py`.
+- [x] **Nav2 estado-da-arte**: SMAC Hybrid-A* (planner global) + MPPI (controller local) + behavior tree + waypoint follower. Lifecycle todo `ACTIVE`. Goal `NavigateToPose` validado (SUCCEEDED).
+- [x] **Build OK e robô rodando no Gazebo via VNC** — `colcon build` limpo; `ros2 launch rlai_bringup simulation.launch.py` + `rlai_navigation navigation.launch.py` sobe stack inteira; GUI no `DISPLAY=:1`.
+
+### Falta fazer (portar do `amr_pallet` + adicionar)
+
+- [ ] **Portar mundo galpão** — trazer `galp_amr.world` (pallets, doca, expedição) do antigo `amr_pallet` para `src/rbot/simulation/rlai_gazebo/worlds/`. Substitui ou complementa o `small_warehouse` atual. Gerar mapa 2D correspondente para AMCL.
+- [ ] **Portar missão logística** — `logistics_mission` (state machine pickup → transit → drop) do antigo `amr_pallet`. Empacotar como nodo ROS 2 acima de `Nav2` (cliente das actions `/navigate_to_pose` e `/follow_waypoints`). Lugar provável: novo `src/rbot/missions/rlai_logistics/`.
+- [ ] **Adicionar garfo elevador (junta `prismatic`)** — **não tem em `rbot`**, é trabalho nosso. Adicionar `fork_link` ligado ao `base_link` via joint prismatic em z, curso 0.0–0.20 m, controlador `position_controllers/JointPositionController` no `ros2_control`. Simular peso de pallet (até 500 kg) como link infantil que prende quando elevado (attach/detach plugin do Gazebo Harmonic).
+
+**Critério de aceitação da fase**: rodar a stack, enviar missão "pegar pallet X e levar para doca Y", ver o robô navegar até o pallet com Nav2 real, parar embaixo, elevar o garfo, transportar até a doca, baixar, voltar.
 
 ---
 
@@ -53,7 +74,7 @@
 > **Foco**: chegar a uma missão completa pickup-deliver simulada.
 
 - [ ] **AprilTag para docking de pallet** — câmera RGB no robô + marcador AprilTag colado no pallet. Pacote `apriltag_ros` (Jazzy). Posicionamento fino (±2 cm) antes de elevar o garfo. Validar precisão em simulação antes de hardware.
-- [ ] **SLAM real (`slam_toolbox`)** — substituir mapa estático por SLAM online. Modo `online_async` para mapeamento inicial, `lifelong` para operação. Já configurado no `rbot`.
+- [ ] **SLAM operacional** — `slam_toolbox` `online_async` já está configurado no `rbot` adotado; falta rodar contra o mundo Galp real e definir o fluxo de mapeamento inicial vs `lifelong` para operação.
 - [ ] **Multi-robô (fleet básico)** — 2 ou 3 robôs num mesmo mundo Gazebo, namespaces ROS distintos (`/robot1/...`, `/robot2/...`). Coordenação simples (semáforo de zona/corredor). Antes de OpenRMF para entender o problema.
 - [ ] **Modelar CAD no SolidWorks e importar** — desenhar chassi real, garfo, motorredutores, baterias. Exportar STL/STEP, gerar inércias do CAD, atualizar URDF com geometrias precisas. Saída: BOM mecânica para fabricação.
 
@@ -84,8 +105,8 @@
 |---|---|---|---|---|
 | 001 | 2026-05-13 | Adotar ROS 2 Jazzy + Gazebo Harmonic como stack alvo | Versões LTS, comunidade ativa, `setup_master.sh` automatiza | ✅ Vigente |
 | 002 | 2026-05-13 | Foco "robô-only" como modo operacional principal | Reduz custo de safety/perception em 30-50%, viabiliza preço para PME brasileira | ✅ Vigente |
-| 003 | (pendente) | Adotar `rbot` como base ou continuar com `amr_pallet` | Análise em `docs/RBOT_ANALYSIS.md` §7 recomenda híbrido (rbot + portar nossa missão) | 🟡 Em avaliação |
-| 004 | (pendente) | Tração diferencial (2 rodas + 4 casters) ou outra topologia | `rbot` usa diff-drive 2+4 — provavelmente herdamos | 🟡 Em avaliação |
+| 003 | 2026-05-14 | Adotar `rbot` como base e portar nossa missão por cima | Análise em `docs/RBOT_ANALYSIS.md` §7. Código importado para `src/rbot/` (Apache 2.0); build OK e sim rodando | ✅ Vigente |
+| 004 | 2026-05-14 | Tração diferencial 2 rodas + 4 casters (herdada do `rbot`) | Consequência direta da Decisão #003; URDF já traz a topologia | ✅ Vigente |
 | 005 | (pendente) | Carga máxima nominal (500 kg? 1000 kg? 1500 kg?) | Define tamanho do motor, bateria, chassi | 🟡 Em avaliação |
 | 006 | (pendente) | CAD: SolidWorks vs FreeCAD vs Onshape | Ferramenta principal para modelagem mecânica | 🟡 Em avaliação |
 

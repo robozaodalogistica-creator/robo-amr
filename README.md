@@ -1,11 +1,28 @@
 # robo-amr — AMR de pallet para galpão robô-only
 
-> Plataforma de pesquisa & desenvolvimento de um **Autonomous Mobile Robot (AMR)
-> de pallet**, projetada para galpões **sem operadores humanos circulando**, com
-> foco na PME logística brasileira ainda desatendida pelo mercado.
+> Plataforma de pesquisa & desenvolvimento de um **Autonomous Mobile Robot
+> (AMR) de pallet**, projetada para galpões **sem operadores humanos
+> circulando**, com foco na PME logística brasileira ainda desatendida pelo
+> mercado.
 
-**Status**: protótipo de software (simulação + stack de navegação funcionando).
-Sem hardware físico ainda. **Não é production-ready**.
+---
+
+## 🎉 Marco — 2026-05-13
+
+**O `rbot` foi adotado como base do projeto.** Pulamos ~4 meses de
+desenvolvimento que teríamos para construir do zero o que ele já entrega:
+URDF físico real, ros2_control com diff-drive de torque, 6 sensores
+simulados, EKF + AMCL, SLAM Toolbox e Nav2 estado-da-arte (SMAC Hybrid-A*
++ MPPI).
+
+Código importado para [`src/rbot/`](src/rbot/) sob Apache 2.0, com
+atribuição em [`NOTICE.md`](NOTICE.md) e
+[`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md). A partir daqui
+modificamos livremente para o caso de uso AMR-de-pallet em galpão
+robô-only e portamos nossa lógica de missão por cima do esqueleto do rbot.
+
+Análise técnica completa do que herdamos: [`docs/RBOT_ANALYSIS.md`](docs/RBOT_ANALYSIS.md).
+Decisão registrada em [`ROADMAP.md §6 #003`](ROADMAP.md).
 
 ---
 
@@ -15,197 +32,202 @@ Um robô móvel autônomo capaz de transportar pallets dentro de um galpão
 **sem pessoas**, com SLAM/Nav2, missões pré-programadas (doca → estoque →
 expedição) e operação 24/7.
 
-A tese é estreita de propósito: ambiente robô-only elimina a maior parte do
-custo regulatório e do risco de certificação de segurança funcional (ISO 3691-4,
-SRP/CS). Sem humanos circulando, **safety scanners** continuam obrigatórios,
-mas o sistema não precisa parar para deixar uma pessoa passar, não precisa de
-sinalização luminosa para humano, não precisa de UI no robô. Isso muda o
-**TCO** e o **payback** o suficiente para PME considerar.
+A tese é estreita de propósito: ambiente robô-only elimina a maior parte
+do custo regulatório e do risco de certificação de segurança funcional
+(ISO 3691-4, SRP/CS). Sem humanos circulando, o sistema não precisa parar
+para deixar uma pessoa passar, não precisa de sinalização para humano,
+não precisa de UI no robô. Isso muda o **TCO** e o **payback** o suficiente
+para PME considerar.
 
-### 1.1 Problema de mercado
-
-- O mercado brasileiro de PME logística (3PL pequenos, distribuidores, e-commerce
-  regional) é **desatendido**: as ofertas são empilhadeiras autônomas importadas
-  (Toyota, Linde, Jungheinrich) a 6 dígitos de USD, ou nada.
-- A maior parte desses operadores aceita reorganizar o layout do galpão se isso
-  baratear o robô. Eles **não exigem** convivência humano-robô.
-- Não existe player nacional com produto AMR de pallet competitivo (até onde
-  apuramos). Existe demanda reprimida.
-
-### 1.2 Hipótese de produto
-
-Um AMR de pallet **robô-only**, projeto enxuto, com:
-
-- Diferencial simples (2 rodas tracionadas + casters).
-- LiDAR 2D + IMU + encoders. Sem visão para começar.
-- Capacidade de 600–1000 kg por viagem.
-- Garfo elevatório passivo (sobe/desce, não inclina).
-- Stack ROS 2 + Nav2 sobre Linux nativo.
-- Preço-alvo: ordem de grandeza inferior ao do importado.
+Mercado-alvo: PMEs brasileiras de logística (3PL pequenos, distribuidores,
+e-commerce regional) que hoje não pagam US$ 50–150k por unidade dos
+fornecedores importados (Toyota, Linde, Jungheinrich, Geek+, KION). Não
+exigem convivência humano-robô e topam reorganizar o layout se isso
+baratear o robô.
 
 ---
 
-## 2. Estado atual (o que funciona hoje)
+## 2. Estado atual
 
-Tudo é **simulação**. Não há hardware. O que está pronto:
+### ✅ O que funciona hoje
 
-| Subsistema | Status | Onde |
+| Item | Onde |
+|---|---|
+| ✅ **Robô `rbot` adotado** — URDF/Xacro completo, física real | [`src/rbot/robot/rlai_description/urdf/`](src/rbot/robot/rlai_description/urdf/) |
+| ✅ **Modelo dinâmico real** — massa, tensores de inércia, joints `continuous` nas rodas, atrito | `src/rbot/robot/rlai_description/urdf/base/` |
+| ✅ **LiDAR 2D** (RPLIDAR A3, 720 raios, 15 Hz) — raycast real do Gazebo | `src/rbot/robot/rlai_description/urdf/gazebo/gazebo_sensors.urdf.xacro` |
+| ✅ **LiDAR 3D** (Velodyne VLP-16, 10 Hz) — opt-in via `lidar_3d_enabled:=true` | idem |
+| ✅ **IMU 200 Hz** com filtro Madgwick → orientação fundida pelo EKF | `src/rbot/robot/rlai_description/urdf/sensors/imu.urdf.xacro` |
+| ✅ **Câmera RGB-D Intel D435i** — `/depth_camera/depth` e `/depth_camera/image_raw` 30 Hz | `src/rbot/robot/rlai_description/urdf/sensors/depth_camera.urdf.xacro` |
+| ✅ **Câmera estéreo** (opt-in) | `src/rbot/robot/rlai_description/urdf/sensors/stereo_camera.urdf.xacro` |
+| ✅ **GPS** (opt-in, navsat) + **ground truth** disponível | `src/rbot/robot/rlai_description/urdf/sensors/gps.urdf.xacro` |
+| ✅ **`ros2_control` + diff-drive plugin** — controle por velocidade nos joints, odometria pelas rodas | `src/rbot/control/rlai_control/config/controllers.yaml` |
+| ✅ **SLAM Toolbox** — modos `online_async` e `lifelong` configurados | `src/rbot/mapping/rlai_mapping/config/` |
+| ✅ **AMCL** para localização global em mapa estático | `src/rbot/localization/rlai_localization/config/amcl.yaml` |
+| ✅ **EKF (`robot_localization`)** — fusão IMU + odom → `odom → base_footprint` | `src/rbot/localization/rlai_localization/config/ekf.yaml` |
+| ✅ **Nav2 estado-da-arte** — **SMAC Hybrid-A*** (planner global) + **MPPI** (controller local) + behavior tree + waypoint follower | `src/rbot/navigation/rlai_navigation/config/nav2_params.yaml` |
+| ✅ **Gazebo Harmonic + ROS 2 Jazzy** — `colcon build` OK, simulação roda | `setup_master.sh` |
+| ✅ **Visualização VNC** — `DISPLAY=:1` + Xvfb + x11vnc + cloudflared. URL pública em `/tmp/gui_stream/public_url` | `start_gui.sh` |
+| ✅ **GitHub sincronizado** — `origin/main` em [github.com/robozaodalogistica-creator/robo-amr](https://github.com/robozaodalogistica-creator/robo-amr) |
+
+Validado em runtime: goal `NavigateToPose` enviado para o robô no
+`small_warehouse`, todos os 9 lifecycle nodes do Nav2 + AMCL + map_server
+em estado `ACTIVE`, robô navegou e parou no goal com `error_code=0`
+(`SUCCEEDED`). Detalhes em [`docs/RBOT_ANALYSIS.md`](docs/RBOT_ANALYSIS.md).
+
+### 🚧 O que falta fazer
+
+Para virar **AMR de pallet de galpão de verdade**, ainda precisamos:
+
+| Falta | Por quê | Onde vai entrar |
 |---|---|---|
-| Loop cinemático do robô (`/cmd_vel` → odom/tf) | ✅ funciona | [`amr_pallet/src/amr_pallet/amr_pallet/robot_sim.py`](amr_pallet/src/amr_pallet/amr_pallet/robot_sim.py) |
-| Mundo Gazebo de galpão (20×15 m, 4 pallets, doca, expedição) | ✅ visível no GUI | [`amr_pallet/src/amr_pallet/worlds/galp_amr.world`](amr_pallet/src/amr_pallet/worlds/galp_amr.world) |
-| Mapa 2D do galpão (occupancy grid) | ✅ carrega | [`amr_pallet/src/amr_pallet/maps/warehouse.yaml`](amr_pallet/src/amr_pallet/maps/warehouse.yaml) |
-| Nav2 completo (planner, controller DWB, BT, costmaps, smoother) | ✅ navega | [`amr_pallet/src/amr_pallet/config/nav2_params.yaml`](amr_pallet/src/amr_pallet/config/nav2_params.yaml) |
-| Missão logística (4 pallets, doca↔expedição) | ✅ roda autônoma | [`amr_pallet/src/amr_pallet/amr_pallet/logistics_mission.py`](amr_pallet/src/amr_pallet/amr_pallet/logistics_mission.py) |
-| Foxglove bridge (WebSocket :8765) | ✅ funciona | dentro do launch |
-| Streaming do Gazebo via navegador (Xvfb + VNC + cloudflared) | ✅ funciona | [`start_gui.sh`](start_gui.sh) + [`start_amr_gui.sh`](start_amr_gui.sh) |
-| Setup do ambiente (ROS 2 Jazzy + Gazebo + Nav2 + Claude Code) | ✅ idempotente | [`setup_master.sh`](setup_master.sh) |
+| 🔧 **Garfo elevador** (junta `prismatic` em z, curso 0.0–0.20 m) | rbot é um robô móvel genérico — **não tem mecanismo de elevação**. É trabalho nosso. | `src/rbot/robot/rlai_description/urdf/base/fork.urdf.xacro` (novo) + `controllers.yaml` (`position_controllers/JointPositionController`) |
+| 🏭 **Mundo galpão Galp** (pallets, doca, expedição) | rbot traz `small_warehouse`/`office_floor` genéricos. Precisamos do nosso layout. | Portar `galp_amr.world` do antigo `amr_pallet` para `src/rbot/simulation/rlai_gazebo/worlds/` |
+| 📦 **Missão logística** (state machine pickup → transit → drop) | rbot só faz `NavigateToPose` solto. Lógica de missão é nossa. | Portar `logistics_mission` do antigo `amr_pallet` para `src/rbot/missions/rlai_logistics/` (novo pacote) |
+| 🎯 **Docking de pallet por AprilTag** | Alinhamento fino (±2 cm) antes de elevar o garfo. Câmera RGB-D já existe; falta o pipeline. | `src/rbot/perception/rlai_apriltag/` (novo) — pacote `apriltag_ros` no Jazzy |
+| 🗺️ **Mapa 2D do galpão Galp** | Gerar via SLAM rodando contra o novo mundo, salvar para AMCL. | `/workspace/rbot/maps/galp_amr.yaml` (novo) |
+| 🤖 **Multi-robô (fleet)** | 2–3 robôs com namespaces ROS + coordenação básica de zona. Antes de OpenRMF. | A definir |
+| 🛠️ **Hardware** | Tudo é simulação. Chassi, motores, encoders, bateria, PCB. | Fase posterior |
 
-**O que NÃO funciona / não existe** (lista resumida — detalhe em
-[`docs/ROBOT_ANALYSIS.md`](docs/ROBOT_ANALYSIS.md)):
-
-- ❌ Modelo dinâmico (massa, inércia, motor, atrito) — robô é cinemático puro.
-- ❌ LiDAR de verdade — o `/scan` é fake (sempre "campo livre", `inf` em todos
-  os raios). O Nav2 navega **sem ver obstáculos dinâmicos**.
-- ❌ URDF — só existe SDF cosmético para visualização.
-- ❌ SLAM real (mapa é fornecido pronto).
-- ❌ AMCL (a transformação `map→odom` é identidade fixa).
-- ❌ Garfo elevatório (a missão "coleta" pallets sem nada físico acontecer).
-- ❌ Hardware.
+Itens detalhados e priorizados em [`ROADMAP.md §3`](ROADMAP.md).
 
 ---
 
 ## 3. Stack tecnológica
 
-| Camada | Escolha | Por quê (resumo — detalhe em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)) |
+| Camada | Escolha | Notas |
 |---|---|---|
-| SO base | **Ubuntu 24.04 LTS** | É a base oficial do Jazzy. |
-| ROS | **ROS 2 Jazzy Jalisco** | LTS atual (suporte até maio/2029). Humble (22.04) já está em fim de vida útil para greenfield. |
-| Simulador | **Gazebo Harmonic** | Par oficial do Jazzy. Sucessor do Ignition; ODE como física, Ogre2 como render. |
-| Navegação | **Nav2** (BT navigator, DWB, NavFn, SmacPlanner disponível) | Stack-padrão de fato da comunidade ROS 2. |
-| Mapeamento | **slam_toolbox** (instalado, ainda não usado) | Idem. |
-| Mensagens DDS | **CycloneDDS** (`rmw_cyclonedds_cpp`) | Mais estável que o Fast-DDS default em Jazzy para LAN única. |
-| Visualização | **Foxglove Studio** (via `foxglove_bridge`) + **RViz2** | Foxglove abre no navegador; útil para PC do sócio sem precisar instalar nada. |
-| Streaming do GUI (no RunPod) | **Xvfb + x11vnc + noVNC + cloudflared** | Quando precisar acessar o Gazebo gráfico rodando no container. |
-| Linguagens | **Python 3.12** (toda a stack atual) + C++ disponível | Python só onde performance não é gargalo. |
+| SO base | **Ubuntu 24.04 LTS** | Base oficial do Jazzy |
+| ROS | **ROS 2 Jazzy Jalisco** | LTS atual (suporte até maio/2029) |
+| Simulador | **Gazebo Harmonic (gz-sim 8.x)** | Par oficial do Jazzy. SDFormat 1.11 |
+| URDF | **xacro** (macros) | Pacotes em `src/rbot/robot/rlai_description/` |
+| Controle baixo nível | **`ros2_control`** + `diff_drive_controller` + `joint_state_broadcaster` + `velocity_smoother` | 100 Hz update rate |
+| Localização | **`robot_localization` EKF** + **`nav2_amcl`** + **`imu_filter_madgwick`** | EKF: odom + IMU → `odom→base_footprint`. AMCL → `map→odom` |
+| Mapeamento | **`slam_toolbox`** (`online_async`, `lifelong`) | Resolução 5 cm |
+| Navegação | **Nav2** — `SmacPlannerHybrid` (planner) + `MPPIController` (controller) + `SimpleSmoother` + `BehaviorTree.CPP` | Footprint retangular 0.50×0.40 m + 3 cm padding |
+| Perception (sim) | `rlai_camera_processing` (rectify + disparity + depth point cloud) + `rlai_lidar_processing` | C++ |
+| DDS | **CycloneDDS** (`rmw_cyclonedds_cpp`) | Mais estável que Fast-DDS em Jazzy para LAN única |
+| Visualização | **RViz2** + **Foxglove Studio** (via `foxglove_bridge`) | Foxglove abre no navegador |
+| Streaming GUI | **Xvfb + x11vnc + noVNC + cloudflared** | Para Gazebo gráfico no container RunPod |
+| Linguagens | **Python 3.12** + **C++** | C++ para perception, Python para missão/launch |
+
+Decisões registradas em [`ROADMAP.md §6`](ROADMAP.md) e
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ---
 
-## 4. Roadmap das próximas fases
+## 4. Quickstart
 
-Ordem geral: **simulação realista → hardware**. Cada fase amadurece o software
-o suficiente para que o próximo passo faça sentido.
+Pré-requisito: workspace já buildado (`colcon build` em `/workspace/rbot/`,
+feito pelo `setup_master.sh`). Para o novo workspace `src/rbot/` adotado,
+rodar `colcon build --packages-up-to rlai_bringup rlai_navigation` quando
+quiser usar a cópia em vez do clone original.
 
-Detalhes técnicos e localização exata dos parâmetros em
-[`docs/ROBOT_ANALYSIS.md §9`](docs/ROBOT_ANALYSIS.md#9-próximas-modificações-possíveis).
+```bash
+# Sobe VNC + cloudflared (se ainda não estiver rodando)
+bash /workspace/start_gui.sh
 
-### Fase 1 — Sensoriamento real em simulação (1-2 semanas)
+# Aponta o ambiente para o workspace do rbot
+source /workspace/rbot/install/setup.bash
+export DISPLAY=:1 LIBGL_ALWAYS_SOFTWARE=1 \
+       GZ_SIM_RESOURCE_PATH=/workspace/rbot/install/rlai_gazebo/share/rlai_gazebo:/workspace/rbot/install/rlai_meshes/share
 
-Tirar o robô da fantasia de software.
+# Sobe Gazebo + robô + EKF + AMCL (map padrão)
+ros2 launch rlai_bringup simulation.launch.py \
+    use_amcl:=true \
+    map_yaml_file:=/workspace/rbot/maps/my_map.yaml \
+    world:=small_warehouse &
 
-- Sensor `<gpu_lidar>` no `model.sdf` substituindo o LaserScan fake — o Nav2
-  passa a ver paredes/pallets de verdade.
-- IMU no `base_link` (o plugin Gazebo já está carregado).
-- Bridge `ros_gz_bridge` real para `/scan`, `/odom`, `/imu/data`, `/clock`.
-- Footprint retangular (0.50 × 0.40) no Nav2 em vez do disco r=0.25.
+# Em outra aba: sobe Nav2
+ros2 launch rlai_navigation navigation.launch.py use_sim_time:=true &
 
-Critério de pronto: missão dos 4 pallets continua funcionando, mas agora com
-costmap local refletindo o mundo.
+# Em outra aba: manda goal de teste (2 m à frente)
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+  "{pose: {header: {frame_id: 'map'}, pose: {position: {x: 3.0, y: 1.0}, orientation: {w: 1.0}}}}" \
+  --feedback
+```
 
-### Fase 2 — Modelo dinâmico (1-2 semanas)
+URL do VNC: `cat /tmp/gui_stream/public_url`.
 
-Substituir o robô-fantasma por um diferencial físico.
-
-- URDF/xacro completo (base_link, rodas com `<joint type="continuous">`,
-  4 casters, sensores).
-- Plugin `gz-sim-diff-drive-system` em vez do `robot_sim.py`.
-- Calibrar massa, inércia, atrito até o robô seguir o `/cmd_vel` sem capotar.
-- Aposentar o `gz_pose_bridge.py` (teleporte).
-
-Critério de pronto: TF tree gerada pelo `robot_state_publisher`, dinâmica
-emergente do `cmd_vel`, missão continua funcionando.
-
-### Fase 3 — SLAM e localização (1 semana)
-
-- `slam_toolbox` em modo async para mapear o galpão a partir do `/scan` real.
-- `nav2_amcl` para localização após o mapa pronto.
-- Remover a TF `map→odom` identidade.
-
-Critério de pronto: robô consegue ser solto numa pose desconhecida e se
-localizar, e consegue mapear um galpão novo.
-
-### Fase 4 — Manipulação de pallet (1-2 semanas)
-
-- Garfo elevatório como `<joint type="prismatic">` (curso 0–0.15 m).
-- Plugin `joint_position_controller` para subir/descer.
-- Anexar/desanexar pallets via `gz service` durante a missão.
-- Footprint dinâmico no Nav2 (vazio vs carregando).
-
-Critério de pronto: missão pega o pallet de verdade no Gazebo, anda com ele
-(inércia maior), entrega.
-
-### Fase 5 — Multi-robô e orquestração (multi-dia)
-
-- Spawnar N robôs com namespaces.
-- Orquestrador central que reparte missões e evita deadlocks de corredor.
-- Avaliar OpenRMF.
-
-### Fase 6 — Hardware (escopo aberto)
-
-Decisões em aberto: chassis, motores (servo BLDC vs DC com encoder),
-controlador (PLC vs micro), LiDAR (modelo/fornecedor), bateria.
-
-A simulação madura das fases 1-4 é o que reduz risco aqui — o software roda
-igual no robô real (mudando só os drivers de hardware).
+Setup completo do ambiente do zero: [`docs/ONBOARDING.md`](docs/ONBOARDING.md).
 
 ---
 
-## 5. Links rápidos
-
-- 📐 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — componentes, decisões de
-  stack, limitações conhecidas.
-- 🚀 [`docs/ONBOARDING.md`](docs/ONBOARDING.md) — setup do ambiente no seu PC
-  ou no RunPod, primeiros comandos, primeiros experimentos.
-- 🔬 [`docs/ROBOT_ANALYSIS.md`](docs/ROBOT_ANALYSIS.md) — análise técnica do que
-  o "robô" é hoje (cinemático puro, sem física, LiDAR fake), com localização
-  exata de cada parâmetro e lista priorizada de modificações.
-- 🛠️ [`setup_master.sh`](setup_master.sh) — provisionamento idempotente (ROS 2
-  Jazzy + Gazebo + Nav2 + Claude Code) — usado no container RunPod.
-
----
-
-## 6. Estrutura do repositório
+## 5. Estrutura do repositório
 
 ```
 /workspace
-├── README.md                  ← este arquivo
+├── README.md                    ← este arquivo
+├── ROADMAP.md                   ← roadmap vivo, decisões e prioridades
+├── NOTICE.md                    ← atribuição do rbot (Apache 2.0)
+├── THIRD_PARTY_LICENSES.md      ← obrigações de licença
+│
 ├── docs/
-│   ├── ARCHITECTURE.md        ← decisões de stack
-│   ├── ONBOARDING.md          ← guia para começar
-│   └── ROBOT_ANALYSIS.md      ← análise técnica do robô atual
-├── amr_pallet/                ← workspace principal (ROS 2 + Gazebo + Nav2)
-│   └── src/amr_pallet/
-│       ├── amr_pallet/        ← nodes Python (robot_sim, logistics_mission)
-│       ├── config/            ← nav2_params.yaml
-│       ├── launch/            ← warehouse.launch.py
-│       ├── maps/              ← occupancy grids
-│       ├── models/            ← SDF do amr_viz
-│       └── worlds/            ← galp_amr.world
-├── nav_test/                  ← workspace de testes Nav2 (TB3-based)
-├── tb3_nav_demo/              ← demo TurtleBot3 (5 waypoints)
-├── openamrobot/               ← clone do projeto upstream (referência — ver ARCHITECTURE.md)
-├── setup_master.sh            ← provisionamento idempotente
-├── start_gui.sh               ← Xvfb + VNC + tunel (acesso navegador)
-├── start_amr_gui.sh           ← sobe Gazebo + Nav2 + missão
-└── install_ros2_*.sh          ← scripts auxiliares de instalação
+│   ├── ARCHITECTURE.md          ← decisões de stack
+│   ├── ONBOARDING.md            ← setup do zero (RunPod ou PC local)
+│   ├── CODE_GUIDE.md            ← guia pedagógico do código rbot (camadas + "onde muda o quê")
+│   ├── RBOT_ANALYSIS.md         ← análise técnica do rbot adotado
+│   └── ROBOT_ANALYSIS.md        ← análise técnica do amr_pallet anterior (histórico)
+│
+├── src/
+│   └── rbot/                    ← BASE ADOTADA (Apache 2.0 — ver NOTICE.md)
+│       ├── LICENSE              ← Apache 2.0 upstream preservada
+│       ├── bringup/             ← top-level launch (simulation.launch.py)
+│       ├── control/             ← ros2_control + velocity_smoother
+│       ├── localization/        ← EKF + AMCL + Madgwick
+│       ├── mapping/             ← SLAM Toolbox
+│       ├── navigation/          ← Nav2 (SMAC + MPPI + BT)
+│       ├── perception/          ← stereo, depth, lidar processing (C++)
+│       ├── robot/               ← URDF/xacro + meshes
+│       ├── simulation/          ← Gazebo worlds, modelos, launches
+│       └── utils/
+│
+├── rbot/                        ← clone upstream (referência; não rastreado pelo nosso git)
+├── amr_pallet/                  ← protótipo anterior (histórico — ver ROBOT_ANALYSIS.md)
+├── nav_test/, tb3_nav_demo/     ← demos auxiliares
+├── openamrobot/                 ← referência externa
+│
+├── setup_master.sh              ← provisionamento idempotente (ROS 2 Jazzy + Gazebo + Nav2)
+├── start_gui.sh                 ← Xvfb + x11vnc + noVNC + cloudflared
+├── start_amr_gui.sh             ← sobe Gazebo + Nav2 (referência do antigo amr_pallet)
+└── install_ros2_*.sh            ← scripts auxiliares
 ```
 
 ---
 
-## 7. Quem está no projeto
+## 6. Roadmap das próximas fases
 
-- **Você** — sócio programador (este onboarding é para você).
-- O outro sócio — engenheiro mecânico, trabalha no RunPod, foco em
-  modelagem/física do robô.
+> Sintetizado a partir de [`ROADMAP.md`](ROADMAP.md). Veja lá os critérios
+> de aceitação detalhados.
 
-Comunicação técnica: este README + os três docs em `docs/` são a fonte da
-verdade. Mudou de ideia em algo arquitetural — atualize aqui.
+| Fase | Foco | Status |
+|---|---|---|
+| **0** | Adotar rbot como base | ✅ Concluído (2026-05-13) |
+| **1** | Portar mundo Galp + missão logística + adicionar garfo elevador | 🟡 Em curso |
+| **2** | AprilTag docking de pallet (alinhamento fino ±2 cm) | ⏸ Próximo |
+| **3** | SLAM operacional contra o mundo Galp real + mapa salvo para AMCL | ⏸ Próximo |
+| **4** | Multi-robô básico (fleet 2-3 unidades, namespaces, semáforo de zona) | ⏸ Backlog |
+| **5** | CAD mecânico (SolidWorks), BOM, inércias do CAD para URDF | ⏸ Backlog |
+| **6** | Hardware (chassi, motorredutores, encoders, BMS, controlador) | ⏸ Backlog |
+
+---
+
+## 7. Documentação relacionada
+
+- 📐 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — decisões de stack, limitações conhecidas.
+- 🚀 [`docs/ONBOARDING.md`](docs/ONBOARDING.md) — setup do ambiente, primeiros comandos.
+- 🧭 [`docs/CODE_GUIDE.md`](docs/CODE_GUIDE.md) — guia pedagógico do código `src/rbot/`: camadas + "onde muda o quê" (para engenheiros mecânicos).
+- 🔬 [`docs/RBOT_ANALYSIS.md`](docs/RBOT_ANALYSIS.md) — análise técnica completa do rbot adotado.
+- 📜 [`docs/ROBOT_ANALYSIS.md`](docs/ROBOT_ANALYSIS.md) — análise do protótipo `amr_pallet` anterior (histórico).
+- 🗺️ [`ROADMAP.md`](ROADMAP.md) — planejamento vivo, decisões com data.
+- 🧾 [`NOTICE.md`](NOTICE.md) + [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) — atribuição e licenças.
+
+---
+
+## 8. Quem está no projeto
+
+- **Sócio engenheiro mecânico** — foco em modelagem física do robô, CAD, decisões de hardware. Trabalha no RunPod com VNC.
+- **Sócio programador** — foco em software, infra, integração.
+
+Comunicação técnica: este README + os docs em `docs/` + o `ROADMAP.md` são
+a fonte da verdade. Mudou de ideia em algo arquitetural — atualize aqui.

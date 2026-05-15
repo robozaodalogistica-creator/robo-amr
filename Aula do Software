@@ -1,0 +1,122 @@
+# 🛠️ O que preciso alterar para o meu robô
+
+> Guia prático: quando eu projetar meu próprio robô, esses são
+> os parâmetros que vou ter que ajustar. Tudo o resto (algoritmos)
+> fica intocado.
+
+---
+
+## 📐 1. Dimensões mecânicas
+
+**Onde**: `controllers.yaml` + `*.urdf.xacro`
+
+| Parâmetro | Valor no rbot | Onde mora | O que ajusto |
+|---|---|---|---|
+| `wheel_radius` | 0.0625 m | controllers.yaml | Raio da roda DO MEU robô |
+| `wheel_separation` | 0.35 m | controllers.yaml | Distância entre rodas DO MEU robô |
+| Massa do chassi | 15 kg | base.urdf.xacro | Massa total real do MEU chassi |
+| Footprint (forma) | retângulo | nav2_params.yaml | Polígono do MEU robô |
+
+**Como medir no meu robô real**:
+- Roda: paquímetro no diâmetro
+- Bitola: trena entre centros das rodas
+- Massa: balança
+- Footprint: desenho a vista superior do robô
+
+---
+
+## ⚙️ 2. Limites do motor
+
+**Onde**: `velocity_smoother.yaml` + `controllers.yaml`
+
+| Parâmetro | Valor no rbot | O que ajusto |
+|---|---|---|
+| `max_velocity` | 0.5 m/s | Velocidade que MEU motor aguenta |
+| `max_accel` | 1.0 m/s² | Aceleração que MEU motor aguenta |
+| `max_decel` | -1.0 m/s² | Desaceleração que MEU motor aguenta |
+| `max_angular` | 1.9 rad/s | Velocidade angular máxima |
+| Torque máximo | 10 N·m | Torque DO MEU motor |
+
+**Como descobrir no meu motor**:
+- Datasheet do motor
+- Calcula: RPM × redução × raio = velocidade linear
+- Torque está no datasheet
+
+---
+
+## 🎯 3. Capacidade de virar
+
+**Onde**: `nav2_params.yaml` seção `planner_server`
+
+| Parâmetro | Valor no rbot | O que ajusto |
+|---|---|---|
+| `minimum_turning_radius` | 0.25 m | Curva mais fechada que MEU robô faz |
+
+**Como determinar**:
+- Robô **diferencial** (gira no eixo): valor pequeno (0.05-0.20m)
+- Robô **carro-like**: valor grande (depende do tipo de direção)
+- Robô **omnidirecional**: praticamente zero
+
+**No rbot**: 0.25m por causa dos 4 casters que limitam o giro.
+
+---
+
+## 👁️ 4. Sensores (LiDAR)
+
+**Onde**: URDF do sensor + parâmetros do sensor
+
+| Parâmetro | Valor no rbot | O que ajusto |
+|---|---|---|
+| Quantos raios | 720 (0.5°) | Depende do MEU LiDAR (RPLiDAR A1: 360, RPLiDAR A2: 720) |
+| Alcance | 25 m | Alcance DO MEU LiDAR |
+| Frequência | 15 Hz | Frequência DO MEU LiDAR |
+| Posição no robô | x, y, z | Onde montei o LiDAR no chassi |
+| FOV | 360° | A maioria dos LiDARs hobby fazem 360° |
+
+**Modelos comuns no Brasil**:
+- RPLiDAR A1M8: 360 pontos, 8m, 5.5 Hz (~R$ 800)
+- RPLiDAR A2M8: 720 pontos, 12m, 10 Hz (~R$ 1.500)
+- YDLIDAR X4: 720 pontos, 10m, 8 Hz (~R$ 800)
+
+---
+
+## 💻 5. Computador (Pi 5)
+
+**Onde**: `nav2_params.yaml` seção `controller_server`
+
+| Parâmetro | Valor no rbot (RTX A5000) | Sugerido para Pi 5 |
+|---|---|---|
+| `batch_size` | 2000 | 800-1500 (testar) |
+| `time_steps` | 56 | 40-50 (testar) |
+| `controller_frequency` | 20 Hz | 15-20 Hz |
+
+**Por quê reduzir no Pi 5**:
+- CPU mais fraca que cloud GPU
+- Pi 5 tem ~70% da capacidade de um desktop médio
+- Precisa testar e ajustar
+
+**Como ajustar na prática**:
+1. Chute inicial: `batch_size: 1500`
+2. Roda e mede: `ros2 topic hz /cmd_vel`
+3. Se < 20 Hz → reduz para 1000
+4. Se > 20 Hz e CPU < 80% → pode aumentar
+5. Itera até estabilizar
+
+---
+
+## 🗺️ 6. Mapa do galpão
+
+**Onde**: pasta `maps/` do projeto
+
+**Não é parâmetro YAML, é arquivo de mapa**.
+
+| O que faço | Como |
+|---|---|
+| Gerar mapa | Roda SLAM Toolbox enquanto piloto o robô manualmente |
+| Salvar | `ros2 run nav2_map_server map_saver_cli -f meu_galpao` |
+| Editar | Abre `.pgm` no GIMP/Photoshop, ajusta paredes |
+| Usar | Aponta `map_server` para o novo arquivo |
+
+---
+
+## 📋 Resumo: arquivos que vou editar

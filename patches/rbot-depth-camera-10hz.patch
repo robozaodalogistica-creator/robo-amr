@@ -1,0 +1,11 @@
+--- /workspace/rbot/src/robot/rlai_description/urdf/gazebo/gazebo_sensors.urdf.xacro	2026-05-13 22:31:51.000000000 +0000
++++ /workspace/rbot/install/rlai_description/share/rlai_description/urdf/gazebo/gazebo_sensors.urdf.xacro	2026-05-16 15:52:22.000000000 +0000
+@@ -158,7 +158,7 @@
+       </visual>
+       <sensor name="depth_camera" type="depth_camera">
+         <always_on>true</always_on>
+-        <update_rate>30</update_rate>
++        <update_rate>10</update_rate>
+         <topic>/depth_camera/depth</topic>
+         <gz_frame_id>depth_camera_depth_optical_frame</gz_frame_id>
+         <camera name="depth_camera">

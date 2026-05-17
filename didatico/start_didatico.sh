@@ -30,10 +30,16 @@ for dest in "$INSTALLED_WORLDS" "$SOURCE_WORLDS"; do
 done
 
 # ── 2. Fontes ROS 2 + workspace ───────────────────────────────────────────────
+# ROS setup scripts referenciam variáveis sem default — desliga `nounset` durante o source.
+set +u
 # shellcheck disable=SC1091
 source /opt/ros/jazzy/setup.bash
 # shellcheck disable=SC1091
 source "${ROS_WS}/install/setup.bash"
+set -u
+
+# gz_ros2_control-system está em /opt/ros/jazzy/lib mas Gazebo não procura lá por padrão.
+export GZ_SIM_SYSTEM_PLUGIN_PATH="/opt/ros/jazzy/lib${GZ_SIM_SYSTEM_PLUGIN_PATH:+:${GZ_SIM_SYSTEM_PLUGIN_PATH}}"
 
 echo ""
 echo "╔══════════════════════════════════════════════════════╗"

@@ -31,13 +31,13 @@ A diferença entre "fazer demo" e "virar expert" está em:
 
 #### Desafios graduais
 
-**1.1 — SLAM em small_warehouse** ✨ próximo desafio
-- [ ] Robô liga sem mapa carregado
-- [ ] Roda SLAM Toolbox em modo mapping
-- [ ] Anda manualmente explorando o galpão
-- [ ] Observa loop closure acontecer
-- [ ] Salva mapa gerado
-- [ ] Compara com mapa pré-existente do rbot
+**1.1 — SLAM em small_warehouse** ✅ concluído em 2026-05-18 — ver [DESAFIO_1.1_SLAM.md](DESAFIO_1.1_SLAM.md)
+- [x] Robô liga sem mapa carregado
+- [x] Roda SLAM Toolbox em modo mapping
+- [x] Anda manualmente explorando o galpão
+- [x] Observa loop closure acontecer
+- [x] Salva mapa gerado (`maps/small_warehouse_france.{pgm,yaml}`)
+- [x] Compara com mapa pré-existente do rbot — *não existe no repo: `rlai_mapping` espera o mapa via launch arg; mapa salvo nesta sessão é o primeiro do `small_warehouse` no workspace*
 
 **1.2 — SLAM em ambiente maior (large_warehouse)**
 - [ ] Encontrar/baixar mundo Gazebo grande (50×50m)

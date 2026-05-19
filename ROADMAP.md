@@ -63,7 +63,14 @@ referência do protótipo anterior em `docs/ROBOT_ANALYSIS.md`.
 
 - [ ] **Portar mundo galpão** — trazer `galp_amr.world` (pallets, doca, expedição) do antigo `amr_pallet` para `src/rbot/simulation/rlai_gazebo/worlds/`. Substitui ou complementa o `small_warehouse` atual. Gerar mapa 2D correspondente para AMCL.
 - [ ] **Portar missão logística** — `logistics_mission` (state machine pickup → transit → drop) do antigo `amr_pallet`. Empacotar como nodo ROS 2 acima de `Nav2` (cliente das actions `/navigate_to_pose` e `/follow_waypoints`). Lugar provável: novo `src/rbot/missions/rlai_logistics/`.
-- [ ] **Adicionar garfo elevador (junta `prismatic`)** — **não tem em `rbot`**, é trabalho nosso. Adicionar `fork_link` ligado ao `base_link` via joint prismatic em z, curso 0.0–0.20 m, controlador `position_controllers/JointPositionController` no `ros2_control`. Simular peso de pallet (até 500 kg) como link infantil que prende quando elevado (attach/detach plugin do Gazebo Harmonic).
+- [ ] **Adicionar garfo elevador (junta `prismatic`)** — **não tem em `rbot`**, é trabalho nosso. Adicionar `fork_link` ligado ao `base_link` via joint prismatic em z, curso 0.0–0.20 m, controlador no `ros2_control`. Simular peso de pallet (até 500 kg) como link infantil que prende quando elevado (attach/detach plugin do Gazebo Harmonic).
+
+**Implementado em 2026-05-18**: `galp_amr.sdf` foi portado para `rlai_gazebo`,
+o mapa legado `galp_amr` foi empacotado em `rlai_mapping`, o pacote
+`rlai_logistics` foi criado, e o garfo prismatico passou a subir/descer via
+`fork_lift_controller`. Ainda falta validar a missao completa com Nav2, trocar
+o mapa legado por um mapa SLAM gerado no mundo final e implementar attach/detach
+do pallet.
 
 **Critério de aceitação da fase**: rodar a stack, enviar missão "pegar pallet X e levar para doca Y", ver o robô navegar até o pallet com Nav2 real, parar embaixo, elevar o garfo, transportar até a doca, baixar, voltar.
 

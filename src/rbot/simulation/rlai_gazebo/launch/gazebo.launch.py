@@ -16,6 +16,7 @@ Usage:
 
 from launch import LaunchDescription
 from launch.actions import (
+    AppendEnvironmentVariable,
     DeclareLaunchArgument,
     ExecuteProcess,
     IncludeLaunchDescription,
@@ -31,13 +32,43 @@ from launch.substitutions import (
 )
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
-from launch_ros.substitutions import FindPackageShare
+from launch_ros.substitutions import FindPackagePrefix, FindPackageShare
 
 
 def generate_launch_description():
     pkg_gz = FindPackageShare("rlai_gazebo")
     pkg_desc = FindPackageShare("rlai_description")
     pkg_control = FindPackageShare("rlai_control")
+    pkg_gz_prefix = FindPackagePrefix("rlai_gazebo")
+    pkg_meshes_prefix = FindPackagePrefix("rlai_meshes")
+    pkg_gz_ros2_control_prefix = FindPackagePrefix("gz_ros2_control")
+
+    gazebo_environment = [
+        AppendEnvironmentVariable(
+            name="GZ_SIM_SYSTEM_PLUGIN_PATH",
+            value=PathJoinSubstitution([pkg_gz_ros2_control_prefix, "lib"]),
+            prepend=True,
+            separator=":",
+        ),
+        AppendEnvironmentVariable(
+            name="GZ_SIM_RESOURCE_PATH",
+            value=PathJoinSubstitution([pkg_meshes_prefix, "share"]),
+            prepend=True,
+            separator=":",
+        ),
+        AppendEnvironmentVariable(
+            name="GZ_SIM_RESOURCE_PATH",
+            value=PathJoinSubstitution([pkg_gz_prefix, "share"]),
+            prepend=True,
+            separator=":",
+        ),
+        AppendEnvironmentVariable(
+            name="GZ_SIM_RESOURCE_PATH",
+            value=PathJoinSubstitution([pkg_gz, "models"]),
+            prepend=True,
+            separator=":",
+        ),
+    ]
 
     # Launch arguments
     declared_args = [
@@ -186,7 +217,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription(
-        declared_args + [
+        declared_args + gazebo_environment + [
             gz_sim_gui,
             gz_sim_headless,
             robot_state_publisher,

@@ -1,0 +1,14 @@
+locations:
+  home: [0.0, 0.0, 0.0]
+  pallet_1: [-2.0, 2.0, 1.5708]
+  pallet_2: [-2.0, -2.0, -1.5708]
+  pallet_3: [2.0, 2.0, 1.5708]
+  pallet_4: [2.0, -2.0, -1.5708]
+  expedicao: [4.0, -1.0, 3.1416]
+  doca: [-4.0, -1.75, 0.0]
+
+tasks:
+  - [pallet_1, expedicao, "Pallet 1 -> Expedicao"]
+  - [pallet_2, doca, "Pallet 2 -> Doca"]
+  - [pallet_3, expedicao, "Pallet 3 -> Expedicao"]
+  - [pallet_4, doca, "Pallet 4 -> Doca"]

@@ -196,12 +196,12 @@ A posição de cada sensor vem da chamada da macro em `robot.urdf.xacro`
 
 | Quero mudar… | Arquivo | Linha aprox | Tipo de mudança |
 |---|---|---|---|
-| **Mundo padrão** | `bringup/rlai_bringup/launch/simulation.launch.py` | 59 | `world` arg (default `small_warehouse`). Mundos disponíveis: `empty`, `small_warehouse`, `large_warehouse`, `office_floor`, `outdoor_courtyard` |
+| **Mundo padrão** | `bringup/rlai_bringup/launch/simulation.launch.py` | 59 | `world` arg (default `small_warehouse`). Mundos disponíveis: `empty`, `small_warehouse`, `large_warehouse`, `office_floor`, `outdoor_courtyard`, `galp_amr` |
 | **Pose inicial do robô** | `simulation.launch.py` | 60–63 | `x:=1.0 y:=1.0 yaw:=0.0` na CLI |
 | **Headless vs GUI** | `simulation.launch.py` | 64–68 | `headless:=true` para sem GUI |
 | **Adicionar um novo mundo .sdf** | `simulation/rlai_gazebo/worlds/<novo>.sdf` (criar) | — | Copiar `small_warehouse.sdf` como template, mudar nome, declarar como mundo válido em `simulation.launch.py:59 choices` se quiser validação |
 | **Adicionar modelo (pallet, doca, …)** | `simulation/rlai_gazebo/models/<modelo>/` (criar) | — | Cada modelo é um diretório com `model.sdf` + `model.config` + meshes. Instanciar no `.sdf` do mundo com `<include><uri>model://nome</uri></include>` |
-| **Mapa 2D (AMCL)** | `simulation.launch.py` | 91–95 | Arg `map_yaml_file`. Mapas hoje: `/workspace/rbot/maps/{my_map,small_warehouse,empty_world}.yaml` — quando portarmos o galpão, geramos um novo via SLAM e salvamos aqui |
+| **Mapa 2D (AMCL)** | `simulation.launch.py` | 91–95 | Arg `map_yaml_file`. O mapa legado do Galp fica instalado em `rlai_mapping/maps/galp_amr.yaml`; gere um novo via SLAM quando o mundo definitivo mudar. |
 
 ---
 

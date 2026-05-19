@@ -60,6 +60,15 @@
       <xacro:caster_state_interfaces name="rear_left"/>
       <xacro:caster_state_interfaces name="rear_right"/>
 
+      <joint name="fork_lift_joint">
+        <command_interface name="velocity">
+          <param name="min">-0.08</param>
+          <param name="max">0.08</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
     </ros2_control>
   </xacro:macro>
 

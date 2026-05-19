@@ -21,6 +21,7 @@
   <xacro:include filename="$(find rlai_description)/urdf/base/base.urdf.xacro"/>
   <xacro:include filename="$(find rlai_description)/urdf/base/wheels.urdf.xacro"/>
   <xacro:include filename="$(find rlai_description)/urdf/base/payload_platform.urdf.xacro"/>
+  <xacro:include filename="$(find rlai_description)/urdf/base/fork.urdf.xacro"/>
 
   <xacro:include filename="$(find rlai_description)/urdf/sensors/imu.urdf.xacro"/>
   <xacro:include filename="$(find rlai_description)/urdf/sensors/lidar_2d.urdf.xacro"/>
@@ -85,6 +86,7 @@
   </xacro:if>
 
   <xacro:rlai_payload_platform parent="base_link"/>
+  <xacro:rlai_fork parent="base_link"/>
 
   <xacro:rlai_ros2_control sim_mode="$(arg sim_mode)"/>
 

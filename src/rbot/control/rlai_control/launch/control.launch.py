@@ -4,8 +4,9 @@ rlai_control/launch/control.launch.py
 Starts the full ros2_control stack for rbot:
   1. joint_state_broadcaster — publishes /joint_states from ros2_control
   2. diff_drive_controller   — drives wheels, publishes /wheel_odom
-  3. velocity_smoother       — smooths /cmd_vel → /diff_drive_controller/cmd_vel
-  4. lifecycle_manager       — auto-activates velocity_smoother
+  3. fork_lift_controller    — velocity command for fork_lift_joint
+  4. velocity_smoother       — smooths /cmd_vel → /diff_drive_controller/cmd_vel
+  5. lifecycle_manager       — auto-activates velocity_smoother
 
 Prerequisites (provided by Gazebo + Phase 3):
   - Gazebo must already be running with the robot spawned.
@@ -68,6 +69,17 @@ def generate_launch_description():
         output="screen",
     )
 
+    fork_lift_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        name="fork_lift_controller_spawner",
+        arguments=[
+            "fork_lift_controller",
+            "--param-file", controllers_yaml,
+        ],
+        output="screen",
+    )
+
     # Smooth /cmd_vel before forwarding TwistStamped commands to diff_drive_controller.
     velocity_smoother = Node(
         package="nav2_velocity_smoother",
@@ -108,6 +120,7 @@ def generate_launch_description():
         declared_args + [
             joint_state_broadcaster_spawner,
             diff_drive_spawner,
+            fork_lift_spawner,
             velocity_smoother,
             lifecycle_manager_delayed,
         ]

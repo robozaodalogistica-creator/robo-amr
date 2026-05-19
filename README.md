@@ -177,9 +177,9 @@ Detalhes técnicos completos em [`docs/RBOT_ANALYSIS.md`](docs/RBOT_ANALYSIS.md)
 
 | Falta | Por quê | Onde vai entrar |
 |---|---|---|
-| 🔧 **Garfo elevador** (junta prismatic em Z, curso 0.0–0.20 m) | rbot é robô móvel genérico — não tem mecanismo de elevação | `src/rbot/robot/rlai_description/urdf/base/fork.urdf.xacro` (novo) |
-| 🏭 **Mundo galpão Galp** (pallets, doca, expedição) | rbot traz mundos genéricos; cliente-âncora tem layout próprio | `src/rbot/simulation/rlai_gazebo/worlds/galp_amr.world` (a portar) |
-| 📦 **Missão logística** (state machine pickup → transit → drop) | rbot só faz NavigateToPose solto | `src/rbot/missions/rlai_logistics/` (pacote novo) |
+| 🔧 **Garfo elevador** (junta prismatic em Z, curso 0.0–0.20 m) | rbot é robô móvel genérico — não tem mecanismo de elevação | `src/rbot/robot/rlai_description/urdf/base/fork.urdf.xacro` |
+| 🏭 **Mundo galpão Galp** (pallets, doca, expedição) | rbot traz mundos genéricos; cliente-âncora tem layout próprio | `src/rbot/simulation/rlai_gazebo/worlds/galp_amr.sdf` |
+| 📦 **Missão logística** (state machine pickup → transit → drop) | rbot só faz NavigateToPose solto | `src/rbot/missions/rlai_logistics/` |
 | 🎯 **Docking de pallet por AprilTag** | Alinhamento fino (±2 cm) com câmera RGB-D | `src/rbot/perception/rlai_apriltag/` (pacote novo) |
 | 🗺️ **Mapa 2D do galpão Galp** | Gerar via SLAM e salvar para AMCL | `/workspace/rbot/maps/galp_amr.yaml` |
 | 🤖 **Multi-robô (fleet)** | Namespaces ROS + semáforo de zona | A definir |

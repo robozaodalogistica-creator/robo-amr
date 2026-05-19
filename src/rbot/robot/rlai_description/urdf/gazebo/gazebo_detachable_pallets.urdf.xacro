@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="detachable_pallet_plugin" params="pallet">
+    <gazebo>
+      <plugin filename="gz-sim-detachable-joint-system"
+              name="gz::sim::systems::DetachableJoint">
+        <parent_link>fork_link</parent_link>
+        <child_model>${pallet}</child_model>
+        <child_link>link</child_link>
+        <attach_topic>/${pallet}/attach</attach_topic>
+        <detach_topic>/${pallet}/detach</detach_topic>
+        <output_topic>/${pallet}/attach_state</output_topic>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="rlai_detachable_pallets">
+    <xacro:detachable_pallet_plugin pallet="pallet_1"/>
+    <xacro:detachable_pallet_plugin pallet="pallet_2"/>
+    <xacro:detachable_pallet_plugin pallet="pallet_3"/>
+    <xacro:detachable_pallet_plugin pallet="pallet_4"/>
+  </xacro:macro>
+
+</robot>

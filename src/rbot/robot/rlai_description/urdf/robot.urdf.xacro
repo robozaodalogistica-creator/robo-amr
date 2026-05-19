@@ -12,6 +12,7 @@
   <xacro:arg name="stereo_camera_enabled" default="false"/>
   <xacro:arg name="imu_enabled"           default="true"/>
   <xacro:arg name="gps_enabled"           default="false"/>
+  <xacro:arg name="detachable_pallets_enabled" default="false"/>
 
   <!-- Sensor model selection -->
   <xacro:arg name="lidar_2d_model"        default="rplidar_a3"/>
@@ -40,6 +41,7 @@
   <xacro:if value="${_sim_mode == 'gazebo'}">
     <xacro:include filename="$(find rlai_description)/urdf/gazebo/gazebo_sensors.urdf.xacro"/>
     <xacro:include filename="$(find rlai_description)/urdf/gazebo/gazebo_materials.urdf.xacro"/>
+    <xacro:include filename="$(find rlai_description)/urdf/gazebo/gazebo_detachable_pallets.urdf.xacro"/>
   </xacro:if>
 
   <xacro:rlai_base/>
@@ -89,5 +91,10 @@
   <xacro:rlai_fork parent="base_link"/>
 
   <xacro:rlai_ros2_control sim_mode="$(arg sim_mode)"/>
+  <xacro:if value="${_sim_mode == 'gazebo'}">
+    <xacro:if value="$(arg detachable_pallets_enabled)">
+      <xacro:rlai_detachable_pallets/>
+    </xacro:if>
+  </xacro:if>
 
 </robot>

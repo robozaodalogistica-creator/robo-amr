@@ -1,11 +1,17 @@
 locations:
-  home: [0.0, 0.0, 0.0]
-  pallet_1: [-2.0, 2.0, 1.5708]
-  pallet_2: [-2.0, -2.0, -1.5708]
-  pallet_3: [2.0, 2.0, 1.5708]
-  pallet_4: [2.0, -2.0, -1.5708]
-  expedicao: [4.0, -1.0, 3.1416]
-  doca: [-4.0, -1.75, 0.0]
+  home: [1.0, 1.0, 0.0]
+  # Phase 1 uses Nav2-safe approach poses outside the inflated pallet/dock
+  # obstacles. AprilTag docking will own the final centimeters later.
+  pallet_1: [-2.0, 1.0, 1.5708]
+  pallet_2: [-2.0, -1.0, -1.5708]
+  pallet_3: [2.0, 1.0, 1.5708]
+  pallet_4: [2.0, -1.0, -1.5708]
+  # Expedition is also a staging pose; the visible bay is closer to inflated
+  # shelving/map obstacles than Phase 1 navigation can reliably leave from.
+  expedicao: [2.6, -0.6, 0.0]
+  # Doca Phase 1 is a staging pose before the physical dock. The real dock
+  # face is too close to inflated pallet obstacles until SLAM/docking are tuned.
+  doca: [-0.7, -0.8, 3.1416]
 
 tasks:
   - [pallet_1, expedicao, "Pallet 1 -> Expedicao"]

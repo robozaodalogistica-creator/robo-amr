@@ -1,7 +1,7 @@
 # Roadmap — AMR Pallet Galp
 
 > **Documento vivo de planejamento.** Atualize sempre que decidir algo.
-> Última atualização: 2026-05-14
+> Última atualização: 2026-05-19
 
 ---
 
@@ -30,14 +30,17 @@ referência do protótipo anterior em `docs/ROBOT_ANALYSIS.md`.
 | Localização | ✅ EKF (`robot_localization`) + AMCL ativos | EKF funde IMU + odom; AMCL provê `map→odom` |
 | Mapping | ✅ SLAM Toolbox `online_async` no `rbot` (launch pronto) | Ainda não rodado contra mundo definitivo |
 | Nav2 (estado-da-arte) | ✅ Lifecycle todo `ACTIVE` | SMAC Hybrid-A* (planner) + MPPI (controller) + behavior tree + waypoint follower; goal `NavigateToPose` testado SUCCEEDED |
+| Mundo Galp | ✅ Portado para Gazebo Harmonic | `src/rbot/simulation/rlai_gazebo/worlds/galp_amr.sdf` com paredes, pallets, doca e expedição |
+| Garfo elevador | ✅ URDF + controlador adicionados | Junta `fork_lift_joint` prismatic em Z, acionada por `fork_lift_controller` |
+| Missão logística | ✅ Fase 1 validada | `rlai_logistics` carrega waypoints por YAML, sequencia Nav2 + garfo; smoke test headless entregou 4/4 pallets e retornou home |
 | Stack completa | ✅ ROS 2 Jazzy + Gazebo Harmonic + Nav2 + SLAM Toolbox + EKF + AMCL | Tudo no mesmo workspace, sobe via `ros2 launch rlai_bringup simulation.launch.py` + `rlai_navigation navigation.launch.py` |
 | Documentação | ✅ `ARCHITECTURE.md`, `ONBOARDING.md`, `ROBOT_ANALYSIS.md`, `RBOT_ANALYSIS.md`, `NOTICE.md`, `THIRD_PARTY_LICENSES.md`, `README.md` |
 
 **Lacunas atuais** (o que falta para virar empilhadeira AMR de galpão):
-1. **Sem garfo elevador** (junta `prismatic`) — robô anda, não levanta nada. Não tem em `rbot`; precisa ser adicionado por nós.
-2. **Sem mundo Galp modelado** — `rbot` traz `small_warehouse`/`office_floor`; precisamos portar `galp_amr.world` (pallets, doca, expedição) do antigo `amr_pallet`.
-3. **Sem missão logística** — `logistics_mission` (estado pickup → transit → drop) ainda no antigo `amr_pallet`; precisa ser portada por cima do rbot.
-4. **Sem docking de pallet** (AprilTag/visão) — alinhamento fino antes de elevar o garfo (±2 cm).
+1. **Waypoints ainda são staging poses** — `expedicao` e `doca` foram movidos para poses Nav2-safe fora da inflação do mapa; docking final ainda não está modelado.
+2. **Attach/detach ainda não está no fluxo padrão** — a infraestrutura Gazebo existe e responde, mas fica atrás de `galp_amr_attach`, `detachable_pallets_enabled` e `enable_gazebo_attach` até termos docking real.
+3. **Sem docking de pallet** (AprilTag/visão) — alinhamento fino antes de elevar o garfo (±2 cm).
+4. **Mapa 2D ainda é legado** — a missão fecha, mas o próximo ganho de robustez é gerar um SLAM novo do `galp_amr.sdf`.
 5. **Sem fleet** — operação multi-robô e coordenação de zona ainda não modeladas.
 
 ---
@@ -59,18 +62,37 @@ referência do protótipo anterior em `docs/ROBOT_ANALYSIS.md`.
 - [x] **Nav2 estado-da-arte**: SMAC Hybrid-A* (planner global) + MPPI (controller local) + behavior tree + waypoint follower. Lifecycle todo `ACTIVE`. Goal `NavigateToPose` validado (SUCCEEDED).
 - [x] **Build OK e robô rodando no Gazebo via VNC** — `colcon build` limpo; `ros2 launch rlai_bringup simulation.launch.py` + `rlai_navigation navigation.launch.py` sobe stack inteira; GUI no `DISPLAY=:1`.
 
-### Falta fazer (portar do `amr_pallet` + adicionar)
+### Fase 1 — integração AMR de pallet
 
-- [ ] **Portar mundo galpão** — trazer `galp_amr.world` (pallets, doca, expedição) do antigo `amr_pallet` para `src/rbot/simulation/rlai_gazebo/worlds/`. Substitui ou complementa o `small_warehouse` atual. Gerar mapa 2D correspondente para AMCL.
-- [ ] **Portar missão logística** — `logistics_mission` (state machine pickup → transit → drop) do antigo `amr_pallet`. Empacotar como nodo ROS 2 acima de `Nav2` (cliente das actions `/navigate_to_pose` e `/follow_waypoints`). Lugar provável: novo `src/rbot/missions/rlai_logistics/`.
-- [ ] **Adicionar garfo elevador (junta `prismatic`)** — **não tem em `rbot`**, é trabalho nosso. Adicionar `fork_link` ligado ao `base_link` via joint prismatic em z, curso 0.0–0.20 m, controlador no `ros2_control`. Simular peso de pallet (até 500 kg) como link infantil que prende quando elevado (attach/detach plugin do Gazebo Harmonic).
+- [x] **Portar mundo galpão** — `galp_amr.sdf` está em `src/rbot/simulation/rlai_gazebo/worlds/`.
+- [x] **Portar missão logística** — `rlai_logistics` sequencia pickup → fork up → delivery → fork down usando `NavigateToPose`.
+- [x] **Adicionar garfo elevador (junta `prismatic`)** — `fork_lift_joint` + `fork_lift_controller` funcionando em simulação.
+- [x] **Externalizar waypoints da missão** — `logistics_mission.launch.py` carrega `config/galp_waypoints.yaml`; poses de fase 1 são aproximações navegáveis, não docking final.
+- [x] **Retune inicial de Nav2 para o mapa Galp pequeno** — `prune_distance`, tolerâncias de goal e progress checker ajustados para evitar path curto com zero poses.
+- [x] **Fechar missão completa 4 pallets** — smoke test headless em 2026-05-19 fechou `MISSION_SUCCESS delivered=4/4 t=576.8s` no `galp_amr`.
+- [x] **Adicionar infraestrutura attach/detach do pallet** — `DetachableJoint` do Gazebo configurado para 4 pallets no mundo opt-in `galp_amr_attach`, bridge ROS→Gazebo criada e missão publica comandos quando `enable_gazebo_attach:=true`.
+- [ ] **Gerar mapa SLAM do mundo final** — substituir o mapa legado `galp_amr.yaml` por mapa produzido no próprio `galp_amr.sdf`.
+- [ ] **Integrar attach/detach ao docking real** — ligar por padrão somente depois que AprilTag/docking posicionar o garfo sob o pallet, evitando juntas longas a partir de staging poses.
 
-**Implementado em 2026-05-18**: `galp_amr.sdf` foi portado para `rlai_gazebo`,
-o mapa legado `galp_amr` foi empacotado em `rlai_mapping`, o pacote
-`rlai_logistics` foi criado, e o garfo prismatico passou a subir/descer via
-`fork_lift_controller`. Ainda falta validar a missao completa com Nav2, trocar
-o mapa legado por um mapa SLAM gerado no mundo final e implementar attach/detach
-do pallet.
+**Validação em 2026-05-19**: build de `rlai_navigation` e `rlai_logistics`
+OK. Smoke test headless com CycloneDDS, `galp_amr`, AMCL, Nav2 e missão
+fechou `MISSION_SUCCESS delivered=4/4 t=576.8s`; após adicionar a trilha
+opt-in de attach/detach, a missão padrão foi revalidada com
+`MISSION_SUCCESS delivered=4/4 t=571.5s`. Fluxo validado: quatro ciclos pickup
+→ garfo sobe → delivery → garfo baixa, seguidos de retorno para `home`. Para
+contornar a inflação do mapa legado, Phase 1 usa poses de staging:
+`home=(1.0, 1.0)`, `expedicao=(2.6, -0.6)`, `doca=(-0.7, -0.8)`, com
+tolerância de yaw ampla; AprilTag/docking real fica para a próxima fase.
+
+**Attach/detach em 2026-05-19**: `galp_amr_attach.sdf` fornece pallets
+dinâmicos para testes físicos, enquanto `galp_amr.sdf` permanece estático para
+a missão baseline. O `rlai_bot` só carrega quatro plugins
+`gz::sim::systems::DetachableJoint` quando
+`detachable_pallets_enabled:=true`, e o bridge expõe `/pallet_N/attach` e
+`/pallet_N/detach` como `std_msgs/Empty`. Smoke test direto confirmou estados
+`attached` e `detached` em `/pallet_1/attach_state`. A missão mantém esse
+recurso desligado por padrão porque os waypoints atuais são staging poses, não
+posições de garfo sob o pallet.
 
 **Critério de aceitação da fase**: rodar a stack, enviar missão "pegar pallet X e levar para doca Y", ver o robô navegar até o pallet com Nav2 real, parar embaixo, elevar o garfo, transportar até a doca, baixar, voltar.
 

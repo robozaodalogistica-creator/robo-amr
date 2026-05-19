@@ -9,9 +9,12 @@ This first version sequences fixed map-frame poses:
 3. Navigate to the delivery pose.
 4. Lower the fork and continue.
 
-It does not yet attach the pallet model to the robot or use AprilTags for fine
-docking. Those are the next layers after the end-to-end mission skeleton is
-stable.
+By default the mission uses Nav2-safe staging poses and does not physically
+carry pallets. Launch with `enable_gazebo_attach:=true` to publish Gazebo
+`DetachableJoint` attach/detach commands on `/pallet_N/attach` and
+`/pallet_N/detach`, after starting the opt-in attach world with
+`detachable_pallets_enabled:=true`. Keep this disabled until docking poses
+place the fork under the pallet; AprilTags own that fine alignment layer.
 
 ## Smoke Test
 
@@ -30,4 +33,28 @@ ros2 launch rlai_bringup simulation.launch.py \
 
 ros2 launch rlai_navigation navigation.launch.py
 ros2 launch rlai_logistics logistics_mission.launch.py
+```
+
+## Optional Gazebo Attach/Detach
+
+```bash
+ros2 launch rlai_bringup simulation.launch.py \
+  world:=galp_amr_attach \
+  headless:=true \
+  use_amcl:=true \
+  map_yaml_file:=$MAP \
+  detachable_pallets_enabled:=true \
+  camera_processing_enabled:=false
+
+ros2 launch rlai_logistics logistics_mission.launch.py \
+  enable_gazebo_attach:=true
+```
+
+The Gazebo side is configured in `galp_amr_attach.sdf`, `robot.urdf.xacro`, and
+`ros_gz_bridge.yaml`. Direct smoke test:
+
+```bash
+ros2 topic pub --times 3 --rate 2 /pallet_1/attach std_msgs/msg/Empty "{}"
+gz topic -e -t /pallet_1/attach_state
+ros2 topic pub --times 3 --rate 2 /pallet_1/detach std_msgs/msg/Empty "{}"
 ```

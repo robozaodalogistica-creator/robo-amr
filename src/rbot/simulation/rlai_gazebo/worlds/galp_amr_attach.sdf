@@ -1,0 +1,301 @@
+<?xml version="1.0"?>
+<sdf version="1.11">
+  <world name="galp_amr_attach">
+
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system"        name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system"  name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system"        name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system"            name="gz::sim::systems::Imu"/>
+    <plugin filename="gz-sim-navsat-system"         name="gz::sim::systems::NavSat"/>
+
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>-23.5505</latitude_deg>
+      <longitude_deg>-46.6333</longitude_deg>
+      <elevation>760.0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+
+    <!-- Iluminação -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Piso -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ═══════════════════════════════════════════════
+         PAREDES DO GALPÃO  (10 m × 8 m)
+         Eixos: x → leste, y → norte
+         Limites: x ∈ [-5, +5],  y ∈ [-4, +4]
+         ═══════════════════════════════════════════════ -->
+
+    <!-- Parede Norte (y=+4) -->
+    <model name="wall_norte">
+      <static>true</static>
+      <pose>0 4 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>10.2 0.2 1.0</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>10.2 0.2 1.0</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Parede Sul (y=-4) -->
+    <model name="wall_sul">
+      <static>true</static>
+      <pose>0 -4 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>10.2 0.2 1.0</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>10.2 0.2 1.0</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Parede Oeste (x=-5) — com vão para a DOCA -->
+    <model name="wall_oeste_norte">
+      <static>true</static>
+      <pose>-5 1.75 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.2 4.5 1.0</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.2 4.5 1.0</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_oeste_sul">
+      <static>true</static>
+      <pose>-5 -2.75 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.2 2.5 1.0</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.2 2.5 1.0</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Parede Leste (x=+5) — com vão para a EXPEDIÇÃO -->
+    <model name="wall_leste_norte">
+      <static>true</static>
+      <pose>5 1.75 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.2 4.5 1.0</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.2 4.5 1.0</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="wall_leste_sul">
+      <static>true</static>
+      <pose>5 -2.75 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.2 2.5 1.0</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.2 2.5 1.0</size></box></geometry>
+          <material><ambient>0.6 0.6 0.6 1</ambient><diffuse>0.6 0.6 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ═══════════════════════════════════════════════
+         DOCA  (lado oeste, y ∈ [-2, -1.5])
+         ═══════════════════════════════════════════════ -->
+    <!-- Plataforma da doca -->
+    <model name="doca_plataforma">
+      <static>true</static>
+      <pose>-4.6 -1.75 0.05 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.6 1.0 0.1</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.6 1.0 0.1</size></box></geometry>
+          <material><ambient>0.9 0.5 0.0 1</ambient><diffuse>0.9 0.5 0.0 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <!-- Sinalização DOCA -->
+    <model name="doca_sign">
+      <static>true</static>
+      <pose>-4.5 -1.75 0.25 0 0 1.5708</pose>
+      <link name="link">
+        <visual name="vis">
+          <geometry><box><size>0.02 0.6 0.4</size></box></geometry>
+          <material><ambient>1.0 0.6 0.0 1</ambient><diffuse>1.0 0.6 0.0 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ═══════════════════════════════════════════════
+         EXPEDIÇÃO  (lado leste, y ∈ [-1.5, -0.5])
+         ═══════════════════════════════════════════════ -->
+    <model name="expedicao_plataforma">
+      <static>true</static>
+      <pose>4.6 -1.0 0.05 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.6 1.0 0.1</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.6 1.0 0.1</size></box></geometry>
+          <material><ambient>0.0 0.6 0.2 1</ambient><diffuse>0.0 0.6 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="expedicao_sign">
+      <static>true</static>
+      <pose>4.5 -1.0 0.25 0 0 1.5708</pose>
+      <link name="link">
+        <visual name="vis">
+          <geometry><box><size>0.02 0.6 0.4</size></box></geometry>
+          <material><ambient>0.0 0.8 0.2 1</ambient><diffuse>0.0 0.8 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ═══════════════════════════════════════════════
+         4 PALLETS  (caixas 0.8 × 0.6 × 0.15 m)
+         Pallet 1 — NW,  Pallet 2 — SW
+         Pallet 3 — NE,  Pallet 4 — SE
+         ═══════════════════════════════════════════════ -->
+
+    <!-- Pallet 1 — Norte-Oeste  (-2.0, 2.5) -->
+    <model name="pallet_1">
+      <static>false</static>
+      <pose>-2.0 2.5 0.075 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <mass>20.0</mass>
+          <inertia>
+            <ixx>0.6375</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1.1042</iyy>
+            <iyz>0</iyz>
+            <izz>1.6667</izz>
+          </inertia>
+        </inertial>
+        <collision name="col"><geometry><box><size>0.8 0.6 0.15</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.8 0.6 0.15</size></box></geometry>
+          <material><ambient>0.55 0.27 0.07 1</ambient><diffuse>0.55 0.27 0.07 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Pallet 2 — Sul-Oeste  (-2.0, -2.5) -->
+    <model name="pallet_2">
+      <static>false</static>
+      <pose>-2.0 -2.5 0.075 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <mass>20.0</mass>
+          <inertia>
+            <ixx>0.6375</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1.1042</iyy>
+            <iyz>0</iyz>
+            <izz>1.6667</izz>
+          </inertia>
+        </inertial>
+        <collision name="col"><geometry><box><size>0.8 0.6 0.15</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.8 0.6 0.15</size></box></geometry>
+          <material><ambient>0.55 0.27 0.07 1</ambient><diffuse>0.55 0.27 0.07 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Pallet 3 — Norte-Leste  (2.0, 2.5) -->
+    <model name="pallet_3">
+      <static>false</static>
+      <pose>2.0 2.5 0.075 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <mass>20.0</mass>
+          <inertia>
+            <ixx>0.6375</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1.1042</iyy>
+            <iyz>0</iyz>
+            <izz>1.6667</izz>
+          </inertia>
+        </inertial>
+        <collision name="col"><geometry><box><size>0.8 0.6 0.15</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.8 0.6 0.15</size></box></geometry>
+          <material><ambient>0.55 0.27 0.07 1</ambient><diffuse>0.55 0.27 0.07 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Pallet 4 — Sul-Leste  (2.0, -2.5) -->
+    <model name="pallet_4">
+      <static>false</static>
+      <pose>2.0 -2.5 0.075 0 0 0</pose>
+      <link name="link">
+        <inertial>
+          <mass>20.0</mass>
+          <inertia>
+            <ixx>0.6375</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1.1042</iyy>
+            <iyz>0</iyz>
+            <izz>1.6667</izz>
+          </inertia>
+        </inertial>
+        <collision name="col"><geometry><box><size>0.8 0.6 0.15</size></box></geometry></collision>
+        <visual name="vis">
+          <geometry><box><size>0.8 0.6 0.15</size></box></geometry>
+          <material><ambient>0.55 0.27 0.07 1</ambient><diffuse>0.55 0.27 0.07 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Marcações no piso (linhas de corredor) -->
+    <model name="linha_corredor_central">
+      <static>true</static>
+      <pose>0 0 0.001 0 0 0</pose>
+      <link name="link">
+        <visual name="vis">
+          <geometry><box><size>9.6 0.1 0.001</size></box></geometry>
+          <material><ambient>0.9 0.9 0.2 1</ambient><diffuse>0.9 0.9 0.2 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

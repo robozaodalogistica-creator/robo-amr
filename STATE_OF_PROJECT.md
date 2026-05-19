@@ -6,7 +6,7 @@
 > 
 > Atualizado periodicamente para manter contexto entre conversas.
 >
-> Última atualização: 15/05/2026
+> Última atualização: 2026-05-19
 
 ---
 
@@ -57,6 +57,11 @@ Mercado-alvo: 3PL, distribuidores, regional e-commerce brasileiros.
 - Setup_master.sh idempotente reinstala tudo em 10 min
 - Robô rbot rodando em Gazebo com física real
 - Navegação autônoma validada (NavigateToPose com SUCCEEDED)
+- Mundo `galp_amr.sdf` portado para Gazebo Harmonic com pallets, doca e expedição
+- Garfo elevador simulado (`fork_lift_joint`) sobe/desce via `fork_lift_controller`
+- Missão `rlai_logistics` criada: carrega waypoints por YAML e sequencia Nav2 + garfo
+- Smoke test Phase 1 validou a missão completa: 4 pallets entregues, garfo subindo/baixando, e retorno para home
+- Infraestrutura Gazebo attach/detach criada no caminho opt-in: `galp_amr_attach`, pallets dinâmicos, `detachable_pallets_enabled:=true`, `DetachableJoint` e tópicos ROS `/pallet_N/attach` e `/pallet_N/detach`
 - 6 sensores funcionais (LiDAR 2D, 3D, IMU, RGB-D, estéreo, GPS)
 - Modo didático com control_panel.py (pausa/play/velocidade)
 - Visualização VNC via cloudflared
@@ -65,15 +70,35 @@ Mercado-alvo: 3PL, distribuidores, regional e-commerce brasileiros.
 
 ---
 
+## 🟡 Estado atual da Fase 1
+
+Em 2026-05-19, a Phase 1 fechou em simulação headless:
+`MISSION_SUCCESS delivered=4/4 t=576.8s`. Depois da trilha opt-in de
+attach/detach, a missão padrão foi revalidada no `galp_amr` estático com
+`MISSION_SUCCESS delivered=4/4 t=571.5s`. A missão validada sequencia Nav2 +
+garfo para quatro ciclos pickup → entrega e retorna para `home`.
+
+Observação importante: `expedicao` e `doca` estão como staging poses
+navegáveis, não como docagem física final. Isso evita regiões infladas/ocupadas
+do mapa legado enquanto AprilTag docking e attach/detach ainda não existem.
+
+Também em 2026-05-19, o attach/detach físico foi preparado no Gazebo em um
+caminho opt-in (`world:=galp_amr_attach` +
+`detachable_pallets_enabled:=true`) e validado com comando direto
+(`attached`/`detached` em `/pallet_1/attach_state`). Ele não fica ligado no
+fluxo padrão da missão porque os waypoints atuais ainda não colocam o garfo
+embaixo do pallet.
+
+---
+
 ## 🚧 O que falta fazer
 
 ### Próximas fases técnicas
 
-- 🔧 Garfo elevador (junta prismatic, Z 0.0-0.20m)
-- 🏭 Mundo galpão Galp (pallets, doca, expedição)
-- 📦 Missão logística (pickup → transit → drop)
+- Gerar mapa 2D novo via SLAM no mundo `galp_amr` e substituir o mapa legado
+- Substituir staging poses por docking real com aproximação fina
+- Integrar `world:=galp_amr_attach`, `detachable_pallets_enabled:=true` e `enable_gazebo_attach:=true` depois que o docking real estiver validado
 - 🎯 AprilTag docking (±2cm precisão)
-- 🗺️ Mapa 2D do galpão Galp
 - 🤖 Multi-robô (fleet básico)
 - 🛠️ Hardware físico (fase futura)
 

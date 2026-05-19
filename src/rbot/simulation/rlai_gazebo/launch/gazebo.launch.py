@@ -107,6 +107,14 @@ def generate_launch_description():
             default_value="false",
             description="Run Gazebo server-only (no GUI). Physics and sensors remain active.",
         ),
+        DeclareLaunchArgument(
+            "detachable_pallets_enabled",
+            default_value="false",
+            description=(
+                "Load Gazebo DetachableJoint plugins for pallet attach/detach "
+                "testing. Keep false for the baseline navigation mission."
+            ),
+        ),
     ]
 
     robot_description = ParameterValue(
@@ -121,6 +129,8 @@ def generate_launch_description():
             " stereo_camera_enabled:=", LaunchConfiguration("stereo_camera_enabled"),
             " imu_enabled:=",          LaunchConfiguration("imu_enabled"),
             " gps_enabled:=",          LaunchConfiguration("gps_enabled"),
+            " detachable_pallets_enabled:=",
+            LaunchConfiguration("detachable_pallets_enabled"),
         ]),
         value_type=str,
     )

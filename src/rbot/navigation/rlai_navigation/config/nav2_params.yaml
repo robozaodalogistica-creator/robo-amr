@@ -18,19 +18,19 @@ controller_server:
     # Failure tolerance: consecutive failures before aborting goal.
     failure_tolerance: 0.3
 
-    # Progress checker: abort if robot does not move > 0.5 m in 10 s.
+    # Progress checker: small Galp approach legs spend time settling near goals.
     progress_checker_plugin: "progress_checker"
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.5    # metres
-      movement_time_allowance:  10.0   # seconds
+      required_movement_radius: 0.2    # metres
+      movement_time_allowance:  20.0   # seconds
 
-    # Goal checker: within 0.25 m position, 0.1 rad heading.
+    # Goal checker: Phase 1 uses approach poses; AprilTag docking handles fine alignment.
     goal_checker_plugins: ["general_goal_checker"]
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance:    0.25   # metres
-      yaw_goal_tolerance:   0.1    # radians
+      xy_goal_tolerance:    0.45   # metres
+      yaw_goal_tolerance:   3.14   # radians
       stateful: true               # keep tolerance after first achievement
 
     # Controller plugin list
@@ -49,7 +49,7 @@ controller_server:
       vy_max:     0.0                # differential drive: no lateral motion
       wz_max:     1.9                # matches diff_drive_controller max angular velocity
       iteration_count: 1             # MPPI update iterations per cycle
-      prune_distance: 1.7            # prune global path points within this radius [m]
+      prune_distance: 0.5            # small Galp map: avoid pruning short legs to zero poses
       transform_tolerance: 0.1       # TF lookup timeout [s]
       temperature: 0.3               # MPPI temperature (higher = more exploration)
       gamma: 0.015                   # discount factor for trajectory scoring

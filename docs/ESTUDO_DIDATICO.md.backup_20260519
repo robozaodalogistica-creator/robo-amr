@@ -6,124 +6,34 @@
 
 ---
 
-## 🎯 Bloco 1: Os 3 loops do robô (versão profunda)
+## 🎯 Bloco 1: A grande sacada — Os 3 loops do robô
 
-> Atualizado: 19/05/2026 — substitui versão inicial superficial.
-> Estilo: mecanismo + porquê + analogia industrial + pergunta de verificação.
+O robô tem **3 loops rodando ao mesmo tempo**, em frequências diferentes.
+Cada um faz uma coisa específica.
 
-### Por que loops e não uma função sequencial
+### Analogia: gerência de obra civil
 
-Máquina industrial simples tem código linear: "se sensor X ativou, liga motor Y, espera Z segundos, desliga". Sequencial.
-
-Robô móvel não pode ser assim. Em paralelo, o robô precisa:
-- Ler LiDAR (15 Hz no rbot)
-- Ler IMU (200 Hz)
-- Ler encoders das rodas (100 Hz)
-- Decidir para onde ir (~1 Hz)
-- Ajustar velocidade comandada (~20 Hz)
-- Controlar rotação de cada motor (100 Hz)
-
-Se tudo isso fosse sequencial, cada ciclo gastaria a SOMA de todas as tarefas. O robô reagiria devagar — como motorista que termina de olhar a estrada antes de começar a virar o volante. Bate.
-
-A solução é paralelismo. Mas paralelismo bagunçado é pior que sequencial. A comunidade de robótica descobriu que as decisões se organizam em 3 níveis de abstração, cada um com frequência natural diferente.
-
-### Os 3 níveis de decisão
-
-| Nível | Pergunta | Frequência típica | Algoritmo no rbot |
+| Nível | Frequência | Quem faz | O que decide |
 |---|---|---|---|
-| Estratégico | "Por onde devo ir?" | 1 Hz | SMAC Hybrid-A* (planner_server) |
-| Tático | "Que velocidade mando AGORA?" | 20 Hz | MPPI (controller_server) |
-| Baixo nível | "Quanto cada motor gira?" | 100 Hz | PID dentro do diff_drive_controller |
+| Engenheiro mestre | 1x/hora | bt_navigator + planner | "Estamos atrasados? Replanejar?" |
+| Mestre de obras | 1x/min | controller (MPPI) | "Qual a próxima tarefa?" |
+| Operário | 1x/seg | diff_drive + Gazebo | "Levanta tijolo, coloca argamassa..." |
 
-### Por que cada frequência (mecanismo, não arbitrária)
+### Aplicado ao robô
 
-**Planejador a 1 Hz — DOIS motivos juntos:**
+| Loop | Frequência | Quem | Pergunta que responde |
+|---|---|---|---|
+| **Planejador** | **1 Hz** | bt_navigator + planner_server | "Por onde devo ir?" |
+| **Controlador** | **20 Hz** | controller_server (MPPI) | "Que velocidade mando agora?" |
+| **Executor** | **100 Hz** | diff_drive_controller + Gazebo | "Quanto cada motor gira?" |
 
-1. **Mapa muda devagar.** Caminho até a doca não precisa ser recalculado 100x/seg.
-2. **Cálculo é caro.** A* expande células do grafo uma a uma, mantém open list e closed list, calcula custos. Para mapa de 400×400 células, leva dezenas a centenas de ms. Rodar a 100 Hz seria impossível — CPU não termina uma busca antes da próxima começar.
+### Por que 3 loops e não 1
 
-**Controlador a 20 Hz — equilíbrio entre reatividade e custo:**
+- Planejador é **caro** (calcula caminho) — não precisa rodar 100x/seg
+- Executor é **rápido** (PID do motor) — precisa ser ágil
+- Controlador é **intermediário** — faz a ponte
 
-- Tem que reagir a obstáculos dinâmicos (pessoa cruzando, pallet fora do lugar). Lento demais = colisão.
-- MPPI simula 2000 trajetórias por ciclo. Custa CPU. Rodar a 100 Hz seria caro demais.
-- 20 Hz (a cada 50 ms) é o sweet spot.
-
-**Executor a 100 Hz — física do motor:**
-
-- Motor responde rápido. Se você atrasa a correção, o motor "passa do ponto" — queria 0.5 m/s, quando o controle percebe já está em 0.7, corrige demais e cai para 0.3. Oscilação clássica.
-- Regra de teoria de controle: frequência de controle ≥ 10× a dinâmica do sistema controlado. Motor responde em ~50 ms → controle a 100 Hz (10 ms entre correções) é seguro.
-
-### Como os loops se conversam
-
-Cada loop produz saída que vira entrada do loop abaixo:
-
-```
-Loop Planejador (1 Hz)
-  ↓ produz: caminho (lista de pontos x,y até o goal)
-Loop Controlador (20 Hz)
-  ↓ produz: velocidade comandada (vx linear, ωz angular)
-Loop Executor (100 Hz)
-  ↓ produz: rotação de cada motor (ω_esquerda, ω_direita)
-Mundo físico (motor, roda, chão)
-  ↓ produz: movimento real, encoders, IMU
-  ↑ feedback retorna para todos os loops acima
-```
-
-Cada loop NÃO espera o loop de cima. Controlador trabalha com último caminho disponível (mesmo que de 0.9s atrás). Executor trabalha com última velocidade comandada. Isso permite paralelismo real.
-
-### Por que separar em 3 e não fazer 1 algoritmo gigante
-
-Separação de responsabilidades. Cada loop é um TIPO diferente de problema matemático:
-
-- **Planejador** = busca em grafo (otimização discreta). Algoritmos: A*, Dijkstra, RRT. Não precisa de física, só de mapa.
-- **Controlador** = otimização contínua sob restrições (física + obstáculos). Algoritmos: MPC, MPPI, DWA. Precisa de dinâmica.
-- **Executor** = controle clássico (fechar malha de velocidade no motor). Algoritmo: PID. Precisa do motor.
-
-Juntar tudo num algoritmo só = monstro gigante, lento, impossível de debugar. Separado = cada parte testada, ajustada, substituída independentemente.
-
-### Por que isso importa para diagnóstico (aplicação prática)
-
-Saber em qual loop está o problema é metade do trabalho de debug. Padrões:
-
-| Sintoma | Loop provável | O que ajustar |
-|---|---|---|
-| Robô anda em círculos sem chegar no goal | Planejador (1) | Raio mínimo de viragem, custo de marcha-ré no A* |
-| Robô bate em obstáculo que apareceu de repente | Controlador (2) | Peso do critério "Obstacles" no MPPI |
-| Robô vibra/trepida ao acelerar | Executor (3) | PID do motor, rampa do velocity_smoother |
-| Robô segue caminho em zigue-zague suave (serpenteia) | Controlador (2) | Peso do critério "PathAlign" no MPPI |
-
-Regra prática para descobrir o loop: **em qual escala de tempo o problema acontece?**
-- Milissegundos (trepidação) → Loop 3 (rápido)
-- Décimos de segundo (zigue-zague) → Loop 2 (médio)
-- Segundos (rota errada) → Loop 1 (lento)
-
-### Analogia industrial (para o engenheiro mecânico)
-
-| Mundo industrial | Robô |
-|---|---|
-| Planejamento de produção (ERP/MES, decide ordem do dia) | Loop 1 — Planejador (1 Hz) |
-| Supervisório SCADA (decide setpoints a cada minuto) | Loop 2 — Controlador (20 Hz) |
-| Drive servo do motor (fecha malha de velocidade) | Loop 3 — Executor (100 Hz) |
-| Sensor de campo (encoder, IMU, LiDAR) | Sensores em paralelo |
-
-CLP industrial moderno funciona com mesma hierarquia: laços rápidos (PID de motor) embaixo, lógica de sequenciamento no meio, decisão estratégica em cima. A novidade do robô é que o "supervisório" (Loop 2) é MPPI, não ladder logic.
-
-### Perguntas de verificação
-
-Responda sem olhar o material acima.
-
-1. Por que o Planejador roda a 1 Hz e não a 100 Hz? (DOIS motivos)
-2. Por que o Executor precisa rodar a 100 Hz e não a 1 Hz? (motivo de física, não de obstáculos)
-3. Robô oscila ao acelerar (alta frequência, milissegundos): qual loop?
-4. Robô serpenteia ao seguir reta (baixa frequência, segundos): qual loop?
-5. Qual loop é responsável por desviar de obstáculo dinâmico?
-
-Respostas corretas:
-1. (a) Mapa muda devagar (b) Cálculo é caro — A* não termina busca em <10ms
-2. Motor é físico, atraso na correção causa oscilação (regra: controle ≥10× dinâmica do sistema)
-3. Loop 3 (Executor) — PID mal sintonizado ou rampa agressiva
-4. Loop 2 (Controlador) — peso PathAlign do MPPI baixo
-5. Loop 2 (Controlador). Loop 3 não enxerga obstáculos.
+**Sensores rodam em paralelo** alimentando todos os loops.
 
 ---
 

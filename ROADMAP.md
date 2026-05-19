@@ -1,7 +1,9 @@
 # Roadmap — AMR Pallet Galp
 
 > **Documento vivo de planejamento.** Atualize sempre que decidir algo.
+
 > Última atualização: 2026-05-19
+
 
 ---
 

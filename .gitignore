@@ -5,3 +5,6 @@ log/
 *.pyc
 __pycache__/
 *.egg-info/
+openamrobot/
+rbot/
+start_gui.sh.xvfb-backup

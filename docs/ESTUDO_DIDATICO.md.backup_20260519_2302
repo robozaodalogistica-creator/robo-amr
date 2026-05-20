@@ -1,0 +1,413 @@
+# 📚 Caderno de Estudo do AMR
+
+> Documento vivo onde France registra o aprendizado conceitual sobre o robô.
+> Estilo: didático, com analogias industriais (CLP, CNC, drives, encoders).
+> Atualizado conforme estudo cada bloco.
+
+---
+
+## 🎯 Bloco 1: Os 3 loops do robô (versão profunda)
+
+> Atualizado: 19/05/2026 — substitui versão inicial superficial.
+> Estilo: mecanismo + porquê + analogia industrial + pergunta de verificação.
+
+### Por que loops e não uma função sequencial
+
+Máquina industrial simples tem código linear: "se sensor X ativou, liga motor Y, espera Z segundos, desliga". Sequencial.
+
+Robô móvel não pode ser assim. Em paralelo, o robô precisa:
+- Ler LiDAR (15 Hz no rbot)
+- Ler IMU (200 Hz)
+- Ler encoders das rodas (100 Hz)
+- Decidir para onde ir (~1 Hz)
+- Ajustar velocidade comandada (~20 Hz)
+- Controlar rotação de cada motor (100 Hz)
+
+Se tudo isso fosse sequencial, cada ciclo gastaria a SOMA de todas as tarefas. O robô reagiria devagar — como motorista que termina de olhar a estrada antes de começar a virar o volante. Bate.
+
+A solução é paralelismo. Mas paralelismo bagunçado é pior que sequencial. A comunidade de robótica descobriu que as decisões se organizam em 3 níveis de abstração, cada um com frequência natural diferente.
+
+### Os 3 níveis de decisão
+
+| Nível | Pergunta | Frequência típica | Algoritmo no rbot |
+|---|---|---|---|
+| Estratégico | "Por onde devo ir?" | 1 Hz | SMAC Hybrid-A* (planner_server) |
+| Tático | "Que velocidade mando AGORA?" | 20 Hz | MPPI (controller_server) |
+| Baixo nível | "Quanto cada motor gira?" | 100 Hz | PID dentro do diff_drive_controller |
+
+### Por que cada frequência (mecanismo, não arbitrária)
+
+**Planejador a 1 Hz — DOIS motivos juntos:**
+
+1. **Mapa muda devagar.** Caminho até a doca não precisa ser recalculado 100x/seg.
+2. **Cálculo é caro.** A* expande células do grafo uma a uma, mantém open list e closed list, calcula custos. Para mapa de 400×400 células, leva dezenas a centenas de ms. Rodar a 100 Hz seria impossível — CPU não termina uma busca antes da próxima começar.
+
+**Controlador a 20 Hz — equilíbrio entre reatividade e custo:**
+
+- Tem que reagir a obstáculos dinâmicos (pessoa cruzando, pallet fora do lugar). Lento demais = colisão.
+- MPPI simula 2000 trajetórias por ciclo. Custa CPU. Rodar a 100 Hz seria caro demais.
+- 20 Hz (a cada 50 ms) é o sweet spot.
+
+**Executor a 100 Hz — física do motor:**
+
+- Motor responde rápido. Se você atrasa a correção, o motor "passa do ponto" — queria 0.5 m/s, quando o controle percebe já está em 0.7, corrige demais e cai para 0.3. Oscilação clássica.
+- Regra de teoria de controle: frequência de controle ≥ 10× a dinâmica do sistema controlado. Motor responde em ~50 ms → controle a 100 Hz (10 ms entre correções) é seguro.
+
+### Como os loops se conversam
+
+Cada loop produz saída que vira entrada do loop abaixo:
+
+```
+Loop Planejador (1 Hz)
+  ↓ produz: caminho (lista de pontos x,y até o goal)
+Loop Controlador (20 Hz)
+  ↓ produz: velocidade comandada (vx linear, ωz angular)
+Loop Executor (100 Hz)
+  ↓ produz: rotação de cada motor (ω_esquerda, ω_direita)
+Mundo físico (motor, roda, chão)
+  ↓ produz: movimento real, encoders, IMU
+  ↑ feedback retorna para todos os loops acima
+```
+
+Cada loop NÃO espera o loop de cima. Controlador trabalha com último caminho disponível (mesmo que de 0.9s atrás). Executor trabalha com última velocidade comandada. Isso permite paralelismo real.
+
+### Por que separar em 3 e não fazer 1 algoritmo gigante
+
+Separação de responsabilidades. Cada loop é um TIPO diferente de problema matemático:
+
+- **Planejador** = busca em grafo (otimização discreta). Algoritmos: A*, Dijkstra, RRT. Não precisa de física, só de mapa.
+- **Controlador** = otimização contínua sob restrições (física + obstáculos). Algoritmos: MPC, MPPI, DWA. Precisa de dinâmica.
+- **Executor** = controle clássico (fechar malha de velocidade no motor). Algoritmo: PID. Precisa do motor.
+
+Juntar tudo num algoritmo só = monstro gigante, lento, impossível de debugar. Separado = cada parte testada, ajustada, substituída independentemente.
+
+### Por que isso importa para diagnóstico (aplicação prática)
+
+Saber em qual loop está o problema é metade do trabalho de debug. Padrões:
+
+| Sintoma | Loop provável | O que ajustar |
+|---|---|---|
+| Robô anda em círculos sem chegar no goal | Planejador (1) | Raio mínimo de viragem, custo de marcha-ré no A* |
+| Robô bate em obstáculo que apareceu de repente | Controlador (2) | Peso do critério "Obstacles" no MPPI |
+| Robô vibra/trepida ao acelerar | Executor (3) | PID do motor, rampa do velocity_smoother |
+| Robô segue caminho em zigue-zague suave (serpenteia) | Controlador (2) | Peso do critério "PathAlign" no MPPI |
+
+Regra prática para descobrir o loop: **em qual escala de tempo o problema acontece?**
+- Milissegundos (trepidação) → Loop 3 (rápido)
+- Décimos de segundo (zigue-zague) → Loop 2 (médio)
+- Segundos (rota errada) → Loop 1 (lento)
+
+### Analogia industrial (para o engenheiro mecânico)
+
+| Mundo industrial | Robô |
+|---|---|
+| Planejamento de produção (ERP/MES, decide ordem do dia) | Loop 1 — Planejador (1 Hz) |
+| Supervisório SCADA (decide setpoints a cada minuto) | Loop 2 — Controlador (20 Hz) |
+| Drive servo do motor (fecha malha de velocidade) | Loop 3 — Executor (100 Hz) |
+| Sensor de campo (encoder, IMU, LiDAR) | Sensores em paralelo |
+
+CLP industrial moderno funciona com mesma hierarquia: laços rápidos (PID de motor) embaixo, lógica de sequenciamento no meio, decisão estratégica em cima. A novidade do robô é que o "supervisório" (Loop 2) é MPPI, não ladder logic.
+
+### Perguntas de verificação
+
+Responda sem olhar o material acima.
+
+1. Por que o Planejador roda a 1 Hz e não a 100 Hz? (DOIS motivos)
+2. Por que o Executor precisa rodar a 100 Hz e não a 1 Hz? (motivo de física, não de obstáculos)
+3. Robô oscila ao acelerar (alta frequência, milissegundos): qual loop?
+4. Robô serpenteia ao seguir reta (baixa frequência, segundos): qual loop?
+5. Qual loop é responsável por desviar de obstáculo dinâmico?
+
+Respostas corretas:
+1. (a) Mapa muda devagar (b) Cálculo é caro — A* não termina busca em <10ms
+2. Motor é físico, atraso na correção causa oscilação (regra: controle ≥10× dinâmica do sistema)
+3. Loop 3 (Executor) — PID mal sintonizado ou rampa agressiva
+4. Loop 2 (Controlador) — peso PathAlign do MPPI baixo
+5. Loop 2 (Controlador). Loop 3 não enxerga obstáculos.
+
+---
+
+## 🗺️ Bloco 2: Loop 1 — O Planejador (1 Hz)
+
+Esse loop responde: "**Por onde devo ir?**"
+
+### Componente 1: Behavior Tree (`/bt_navigator`)
+
+É o **cérebro decisor**. Análogo ao PLC mestre de uma fábrica.
+
+| CLP industrial | Behavior Tree |
+|---|---|
+| Ladder logic | XML com nós |
+| Sequencial | Hierárquica |
+| If/then/else | Sequence/Selector |
+| Retry block | RecoveryNode |
+
+A BT do nosso robô:
+
+**Observação**: roda 10x/seg, mas só replaneja 1x/seg (RateController).
+
+### Componente 2: SMAC Hybrid-A* (`/planner_server`)
+
+O **algoritmo que desenha o caminho**.
+
+**A\* básico**: trata o mapa como tabuleiro de xadrez. Para cada casa:
+- `g(casa)` = custo já gasto até aqui
+- `h(casa)` = estimativa do custo restante até o goal
+- `f = g + h` (sempre expande o menor f → caminho ótimo)
+
+**Hybrid-A\***: adiciona curvas suaves (Dubin) respeitando raio mínimo de viragem.
+
+**Parâmetro chave**: `minimum_turning_radius: 0.25m` — depende do tipo do robô.
+
+### Open List vs Closed List
+
+| Lista | Função |
+|---|---|
+| **Open List** | Casas descobertas mas não exploradas |
+| **Closed List** | Casas já exploradas (não volta) |
+
+**Por que precisa das 2?**
+- Sem Closed List → loop infinito (volta no mesmo lugar)
+- Sem Open List → não sabe próximo passo
+
+**Termina quando**:
+- Achou o goal ✅
+- Open list vazia (sem caminho)
+- Timeout 5s
+
+### Analogia industrial
+
+| Mundo industrial | Algoritmo |
+|---|---|
+| Ordens em fila no MES | Open List |
+| Ordens já produzidas | Closed List |
+| Selecionar ordem urgente | Tirar de Open (menor f) |
+
+---
+
+## ⚙️ Bloco 3: Parâmetros vs Algoritmos
+
+**Pergunta crítica**: Se mudar o robô, preciso reescrever tudo?
+
+**Resposta**: NÃO. Algoritmos ficam. Parâmetros mudam.
+
+### O que NÃO muda (universal)
+
+- Código do A*/Hybrid-A*
+- Algoritmo MPPI
+- EKF, AMCL
+- Estrutura Open/Closed List
+
+Esses são **milhões de linhas** que ninguém reescreve.
+
+### O que VOCÊ ajusta (parâmetros)
+
+**Arquivos YAML** onde mora 80% do trabalho de customização:
+
+- `nav2_params.yaml` — parâmetros de navegação
+- `controllers.yaml` — limites do motor
+- `velocity_smoother.yaml` — rampa de aceleração
+- `ekf.yaml` — fusão sensorial
+- `amcl.yaml` — localização
+
+Parâmetros típicos que mudam:
+
+```yaml
+
+### 2 modos
+
+**Online (em tempo real)**: robô constrói mapa enquanto navega
+- AMR em galpão novo
+- Drone explorando área desconhecida
+
+**Offline (pós-processamento)**: grava tudo, depois reconstrói
+- Mochilas de mapeamento (Leica, NavVis)
+- Drones topográficos
+
+### Tipos de SLAM
+
+| Tipo | Sensor principal | Aplicação |
+|---|---|---|
+| Visual SLAM | Câmera | Drone, AR/VR |
+| LiDAR SLAM 2D | LiDAR 2D | AMR indoor |
+| LiDAR SLAM 3D | LiDAR 3D | Carro autônomo |
+| LiDAR-Inertial SLAM | LiDAR + IMU | Robô premium |
+
+**No nosso rbot**: SLAM Toolbox (LiDAR 2D SLAM).
+
+### Loop closure (a mágica)
+
+Quando o robô passa em lugar que já passou, SLAM **reconhece** e corrige o mapa retroativamente. Isso elimina drift acumulado.
+
+---
+
+## 🎮 Bloco 7: Loop 2 — O Controlador MPPI (20 Hz)
+
+Esse loop responde: "**Estou andando esse caminho. Que velocidade mando AGORA?**"
+
+### MPPI = Model Predictive Path Integral
+
+**A grande sacada**: simula **2000 futuros possíveis** e escolhe o melhor.
+
+### Como funciona (a cada 50ms)
+
+**Passo 1** — Gera 2000 trajetórias candidatas
+Cada uma com 56 passos no futuro (~2.8 segundos de horizonte).
+Cada uma com velocidades aleatórias diferentes.
+
+**Passo 2** — Avalia cada trajetória usando 8 critérios
+
+| Critério | Pune quando... |
+|---|---|
+| PathFollow | Sai do caminho planejado |
+| PathAngle | Vira diferente do caminho |
+| Obstacles | Passa perto demais de obstáculo |
+| PreferForward | Anda de ré sem precisar |
+| Goal | Anda longe do objetivo |
+| GoalAngle | Fica de costas para o goal |
+| Velocity | Oscila velocidade |
+| CostmapInflation | Entra em zona perigosa |
+
+**Passo 3** — Escolhe a melhor trajetória (menor custo total)
+
+**Passo 4** — Executa apenas o primeiro passo
+Pega só o primeiro comando da trajetória vencedora.
+
+**Passo 5** — 50ms depois, repete tudo do zero
+
+### Por que simular 2000 futuros em vez de calcular direto
+
+**Não dá para calcular direto** porque:
+
+1. Mundo é não-linear (motor satura, derrapa, terreno inclina)
+2. Restrições mudam o tempo todo (obstáculos aparecem)
+3. Trade-offs múltiplos (rápido vs suave vs seguro)
+
+**Não existe fórmula fechada**. Simular é a forma viável.
+
+### Por que 2000 trajetórias
+
+| Trajetórias | Qualidade | CPU |
+|---|---|---|
+| 100 | Ruim | Baixíssima |
+| 500 | Médio | Baixa |
+| 2000 | Bom | Média (sweet spot rbot) |
+| 10000 | Ótimo | Alta |
+
+### Por que 56 passos (2.8s no futuro)
+
+- Curto demais (0.5s): reage tarde
+- Longo demais (10s): mundo muda muito, predições viram inúteis
+- 2.8s: equilibrado
+
+### Analogia com motorista humano
+
+Você dirigindo:
+- Olha 30-50m à frente (não 5m, nem 500m)
+- Imagina mentalmente 3-4 trajetórias possíveis
+- Escolhe a melhor e executa um pedacinho
+- Reavalia constantemente
+
+**MPPI faz a mesma coisa matematicamente** em vez de intuitivamente.
+
+### Hardware envolvido
+
+**Não é hardware, é algoritmo.** Roda na CPU do robô (Pi 5 ou similar).
+
+### Parâmetros principais (no Pi 5)
+
+| Parâmetro | rbot (cloud) | Pi 5 estimado |
+|---|---|---|
+| batch_size | 2000 | 800-1500 |
+| time_steps | 56 | 40-50 |
+| controller_frequency | 20 Hz | 15-20 Hz |
+
+---
+
+## 🔗 Bloco 8: ROS 2 como Framework
+
+### Framework vs Software
+
+| | Framework | Software |
+|---|---|---|
+| Exemplo | ROS 2 | Nav2, SLAM Toolbox |
+| Função | Infraestrutura comum | Resolve problema específico |
+| Analogia | Shopping inteiro | Lojas dentro do shopping |
+
+### Por que ROS 2 é revolucionário
+
+Antes do ROS (2007): cada laboratório tinha framework próprio, código não compartilhável.
+
+Depois do ROS: comunidade global compartilha código, inovação acelerou 10x.
+
+### O que ROS 2 fornece
+
+**1. Tipos de mensagem padronizados**
+- LaserScan = formato padrão para LiDAR
+- Image = formato padrão para câmera
+- Twist = formato padrão para velocidade
+
+**2. Sistema de transporte de mensagens (DDS)**
+Entrega mensagens entre processos sem você programar TCP/IP.
+
+**3. Descoberta automática**
+Processos se descobrem entre si na rede.
+
+### Pacotes que usam ROS 2
+
+- Nav2 (navegação)
+- MoveIt (manipuladores)
+- SLAM Toolbox (mapeamento)
+- ros2_control (controle motor)
+- Foxglove Bridge (visualização)
+- Centenas de outros
+
+**Todos conversam entre si** porque seguem o padrão ROS 2.
+
+### Drivers — específicos do hardware
+
+Cada componente físico tem **driver** próprio que conecta com o ROS 2:
+
+| Componente | Driver | Tópico publicado |
+|---|---|---|
+| RPLiDAR A2 | sllidar_ros2 | /scan |
+| Câmera Pi v2 | raspicam2 | /image_raw |
+| Motor com encoder | ros2_control + hw interface | /joint_states |
+
+**Software (Nav2, SLAM) é genérico. Driver é específico.**
+
+---
+
+## 📌 Próximos blocos a estudar
+
+- [x] Bloco 1: Os 3 loops do robô
+- [x] Bloco 2: Loop 1 (Planejador) — BT + SMAC
+- [x] Bloco 3: Parâmetros vs Algoritmos
+- [x] Bloco 4: Como ajustar parâmetros
+- [x] Bloco 5: Especificações do rbot
+- [x] Bloco 6: SLAM (conceito)
+- [x] Bloco 7: Loop 2 (MPPI Controller)
+- [x] Bloco 8: ROS 2 como Framework
+- [ ] **Bloco 9: Loop 3 — Executor + ros2_control**
+- [ ] Bloco 10: Sensores e Localização (AMCL + EKF)
+- [ ] Bloco 11: Como o LiDAR vira costmap (percepção)
+- [ ] Bloco 12: SLAM matemática básica
+- [ ] Bloco 13: Como adaptar para meu robô físico
+
+---
+
+## 💡 Conceitos-chave aprendidos
+
+### Mapa mental do robô
+### Insights importantes
+
+1. **Algoritmos são universais, parâmetros são meus**
+2. **Iteração beats cálculo** (engenheiro testa, mede, ajusta)
+3. **Não precisa reinventar a roda** (Nav2 + rbot resolvem 80%)
+4. **80% do trabalho está nos YAMLs**, não em código novo
+5. **URDF é o equivalente ROS do CAD** do robô
+6. **MPPI simula porque calcular direto é impossível**
+7. **ROS 2 é o idioma comum** que une centenas de softwares
+8. **Driver é específico, software é genérico**
+9. **Loop closure** elimina drift acumulado no SLAM
+10. **Framework não faz nada sozinho**, é infraestrutura

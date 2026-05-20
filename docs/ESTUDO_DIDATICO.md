@@ -127,61 +127,177 @@ Respostas corretas:
 
 ---
 
-## 🗺️ Bloco 2: Loop 1 — O Planejador (1 Hz)
+## Bloco 2: Loop 1 — O Planejador (1 Hz)
 
-Esse loop responde: "**Por onde devo ir?**"
+Atualizado: 20/05/2026 — versão profunda, substitui versão superficial inicial. Esta atualização cobre o Componente 1 (Behavior Tree). O Componente 2 (A*) será adicionado a seguir.
 
-### Componente 1: Behavior Tree (`/bt_navigator`)
+### Por que o Loop 1 tem DOIS componentes ROS e não um só
 
-É o **cérebro decisor**. Análogo ao PLC mestre de uma fábrica.
+O Loop 1 não é "um algoritmo só". São duas peças trabalhando em conjunto:
 
-| CLP industrial | Behavior Tree |
-|---|---|
-| Ladder logic | XML com nós |
-| Sequencial | Hierárquica |
-| If/then/else | Sequence/Selector |
-| Retry block | RecoveryNode |
+Componente Behavior Tree no nó ROS /bt_navigator responde "O que devo fazer agora? Continuar, replanejar, dar ré, esperar, abortar?". Análogo industrial: PLC mestre rodando ladder/SFC.
 
-A BT do nosso robô:
+Componente Planejador A* no nó ROS /planner_server responde "Dado o objetivo, qual o melhor caminho geométrico?". Análogo industrial: Software CAM gerando trajetória CNC.
 
-**Observação**: roda 10x/seg, mas só replaneja 1x/seg (RateController).
+A separação existe porque são tipos diferentes de problema. BT resolve LÓGICA de decisão (sequência, alternativas, recovery, retry). A* resolve GEOMETRIA de caminho (busca em grafo, primitivas Dubin, obstáculos). Quando o robô precisa decidir "devo tentar replanejar ou já desisto?", isso é BT. Quando precisa decidir "qual o melhor caminho dessa pose até essa outra?", isso é A*. Juntar tudo num só algoritmo seria monstruoso.
 
-### Componente 2: SMAC Hybrid-A* (`/planner_server`)
+### Dois significados de "nó" — esclarecimento importante
 
-O **algoritmo que desenha o caminho**.
+A palavra "nó" é usada em DUAS camadas diferentes do ROS/Nav2.
 
-**A\* básico**: trata o mapa como tabuleiro de xadrez. Para cada casa:
-- `g(casa)` = custo já gasto até aqui
-- `h(casa)` = estimativa do custo restante até o goal
-- `f = g + h` (sempre expande o menor f → caminho ótimo)
+Nó ROS 2 é um processo do sistema operacional. Aparece em ros2 node list. Vive no OS / rede ROS.
 
-**Hybrid-A\***: adiciona curvas suaves (Dubin) respeitando raio mínimo de viragem.
+Nó de Behavior Tree é um elemento dentro do XML da árvore. Sequence, Selector, RateController, etc. Vive dentro do XML, na memória do bt_navigator.
 
-**Parâmetro chave**: `minimum_turning_radius: 0.25m` — depende do tipo do robô.
+O bt_navigator é UM nó ROS 2. Dentro dele, na memória, existe uma ÁRVORE de nós BT. Esses nós BT não são processos — são estruturas de dados.
 
-### Open List vs Closed List
+Verificação: rode ros2 node list durante uma navegação. Você verá bt_navigator, planner_server, controller_server, behavior_server como processos separados. Não verá "Sequence" ou "RateController" — esses são internos.
 
-| Lista | Função |
-|---|---|
-| **Open List** | Casas descobertas mas não exploradas |
-| **Closed List** | Casas já exploradas (não volta) |
+### Componente 1: Behavior Tree (/bt_navigator)
 
-**Por que precisa das 2?**
-- Sem Closed List → loop infinito (volta no mesmo lugar)
-- Sem Open List → não sabe próximo passo
+#### O problema que ela resolve
 
-**Termina quando**:
-- Achou o goal ✅
-- Open list vazia (sem caminho)
-- Timeout 5s
+No mundo real, mil coisas dão errado: caminho bloqueado, pallet fora do lugar, bateria baixa, pessoa na frente, robô se perde, missão cancelada.
 
-### Analogia industrial
+Você precisa de uma estrutura de decisão capaz de tentar caminho A; se falhar, tentar B; se falhar, recuperação; se falhar, desistir. Também precisa estrangular taxa de execução de operações caras (não pode replanejar 100x/s). E lembrar onde parou entre ticks (FollowPath durou 5 segundos, precisa retomar).
 
-| Mundo industrial | Algoritmo |
-|---|---|
-| Ordens em fila no MES | Open List |
-| Ordens já produzidas | Closed List |
-| Selecionar ordem urgente | Tirar de Open (menor f) |
+Tentativas alternativas falham. Código sequencial vira pirâmide de if-else. Máquina de estados em sistemas grandes vira "espaguete" de transições. BT é a solução adotada pela comunidade de robótica.
+
+#### Como funciona a avaliação
+
+A árvore é ticada 10 vezes por segundo. Cada tick começa na raiz, desce pela árvore em série (esquerda para direita), e cada nó retorna um de três estados.
+
+SUCCESS significa que esse nó terminou com sucesso. FAILURE significa que esse nó falhou. RUNNING significa que ainda está executando, volta a perguntar no próximo tick.
+
+A informação sobe pela árvore. Cada nó pai decide o que fazer com base no resultado dos filhos.
+
+Nada na BT roda em paralelo por padrão. A cada instante, exatamente um caminho da raiz até uma folha está ativo.
+
+#### Tipos de nó fundamentais
+
+Sequence (AND lógico) executa filhos em ordem. Filho retorna SUCCESS, vai para o próximo. Filho retorna FAILURE, para tudo, retorna FAILURE. Filho retorna RUNNING, para tudo, retorna RUNNING (próximo tick volta nesse mesmo filho). Exemplo: ir_até_pallet, pegar_pallet, ir_até_doca. Se qualquer um falhar, missão falhou.
+
+Selector / Fallback (OR lógico) executa filhos em ordem. Filho retorna FAILURE, tenta o próximo. Filho retorna SUCCESS, para tudo, retorna SUCCESS. Filho retorna RUNNING, para tudo, retorna RUNNING. Exemplo: replanejar OU girar OU dar ré OU abortar. Para no primeiro que funcionar.
+
+RecoveryNode é especialização de Selector com retry. Se primeiro filho falhar, executa segundo filho (recovery). Se recovery funcionar, reseta e tenta primeiro filho de novo. Limite configurável de retries.
+
+RoundRobin faz rodízio. Cada vez que é acionado, executa um filho diferente da lista (Spin, Wait, BackUp, Spin, ...).
+
+Decoradores modificam comportamento do filho. RateController(N Hz) limita frequência de execução do filho. Se chamado antes do intervalo, retorna SUCCESS sintético sem chamar filho. Retry(N) se filho falhar, tenta de novo até N vezes. Timeout(t) se filho não terminar em t segundos, retorna FAILURE. Inverter inverte resultado: SUCCESS vira FAILURE e vice-versa.
+
+#### Por que XML e não código
+
+Toda a árvore é declarada em XML. Sem recompilar: mudar a estratégia é editar o XML. Visualmente inspecionável: ferramentas (Groot, Foxglove) renderizam o XML como árvore gráfica. Reutilizável: mesmo XML roda em robôs diferentes, só muda parâmetros das folhas. Acessível para não-programadores: editar BT não exige saber C++.
+
+Análogo industrial: ladder logic de CLP. Mesma filosofia — lógica declarativa, manutenção fácil, sem código procedural.
+
+#### Folhas chamam outros nós ROS 2 via ações
+
+As folhas da BT (ComputePathToPose, FollowPath, Spin) são clientes que invocam OUTROS nós ROS 2 da stack Nav2 via ações.
+
+Folha BT ComputePathToPose invoca nó ROS 2 /planner_server. Função: roda A* (Hybrid-A*) e retorna caminho.
+
+Folha BT FollowPath invoca nó ROS 2 /controller_server. Função: roda MPPI e publica /cmd_vel.
+
+Folhas BT Spin, BackUp, Wait invocam nó ROS 2 /behavior_server. Função: comportamentos de recovery.
+
+Folha BT ClearLocalCostmap invoca service no /local_costmap. Função: limpa costmap local.
+
+O bt_navigator é o MAESTRO que orquestra os outros nós ROS 2.
+
+### A BT padrão do Nav2 (simplificada)
+
+Estrutura:
+
+RecoveryNode (até 6 retries) tem dois filhos: PipelineSequence (caminho normal) e RoundRobin (recovery).
+
+PipelineSequence tem dois filhos: RateController (1 Hz) e FollowPath. RateController tem um filho: ComputePathToPose, que chama /planner_server (A*). FollowPath chama /controller_server (MPPI).
+
+RoundRobin tem três filhos em rodízio: Spin (gira 90°, ~3 s), Wait (espera 5 s), BackUp (ré 30 cm, ~1-2 s).
+
+Tradução em linguagem natural: Tenta navegar até o goal. A cada 1 segundo, replaneja o caminho (RateController estrangulando o A*). Segue o caminho com MPPI. Se falhar 1 vez: entra em recovery (gira, depois espera, depois ré, em rodízio). Se conseguir sair: volta a tentar caminho normal. Se falhar 6 vezes seguidas: aborta missão.
+
+### Por que ticar 10 Hz mas replanejar só 1 Hz (RateController em detalhe)
+
+Conflito aparente: a árvore é avaliada 10x/s, mas o A* é caro (30-100 ms) e o caminho não muda 10x/s. Solução: RateController.
+
+Mecanismo interno do RateController(1 Hz): No primeiro tick após passar 1 segundo, chama o filho e retorna o que o filho retornou (SUCCESS/FAILURE/RUNNING). No tick dentro da janela de 1 s, NÃO chama o filho e retorna SUCCESS sintético — finge que o filho terminou.
+
+Por que retorna SUCCESS sintético e não RUNNING? Porque a Sequence acima precisa receber algo para decidir o próximo passo. Se retornasse RUNNING, a Sequence ficaria parada esperando — e nunca chamaria o FollowPath.
+
+A lógica: "o último plano que recebi ainda é válido (passou só 100 ms), então posso fingir SUCCESS para a árvore seguir adiante e o FollowPath continuar usando o plano antigo."
+
+### Fluxo completo: 8 passos com timing
+
+Cenário 1: navegação normal com sucesso (passos 1-5). Cenário 2: navegação com falha e recovery (passos 6-8).
+
+Passo 1, t=0.0 s. Caminho ativo: Recovery, Pipeline, Rate, Compute. Duração: ~80 ms (A* rodou). /cmd_vel: 0 m/s. O que aconteceu: Início. RateController primeira vez, libera ComputePathToPose. A* roda no /planner_server em ~50 ms, devolve caminho de ~80 pontos. SUCCESS.
+
+Passo 2, t=0.0 s +80 ms. Caminho ativo: Recovery, Pipeline, FollowPath. Duração: +1 ms. /cmd_vel: 0.3 m/s. O que aconteceu: RateController repassa SUCCESS. Sequence vai para FollowPath. Aciona MPPI no /controller_server, que começa a publicar /cmd_vel a 20 Hz. RUNNING.
+
+Passo 3, t=0.1 s. Caminho ativo: Recovery, Pipeline, Rate (sintético), FollowPath. Duração: ~2 ms (sem A*). /cmd_vel: 0.4 m/s. O que aconteceu: RateController: só 100 ms passados, NÃO chama Compute. Retorna SUCCESS sintético. Sequence avança para FollowPath, RUNNING.
+
+Passo 4, t=1.0 s. Caminho ativo: Recovery, Pipeline, Rate, Compute, FollowPath. Duração: ~50 ms (A* rodou). /cmd_vel: 0.5 m/s. O que aconteceu: RateController libera. Compute chama A* de novo. Plano atualizado. FollowPath continua. 9 ticks rápidos sem A* entre 0.1s e 1.0s.
+
+Passo 5, t=5.0 s. Caminho ativo: Recovery, Pipeline, FollowPath (SUCCESS). Duração: ~3 ms. /cmd_vel: 0 m/s. O que aconteceu: FollowPath: distância < tolerância. SUCCESS. Sequence retorna SUCCESS. Recovery retorna SUCCESS. Missão completa.
+
+Passo 6, t=3.0 s (cenário alternativo). Caminho ativo: Recovery, Pipeline, FollowPath (FAILURE). Duração: ~3 ms. /cmd_vel: 0 m/s. O que aconteceu: MPPI não conseguiu seguir. FollowPath retorna FAILURE. Sequence corta e retorna FAILURE.
+
+Passo 7, t=3.0 s + alguns ms. Caminho ativo: Recovery, RoundRobin, Spin. Duração: ~3 s (Spin gira). /cmd_vel: ω=1 rad/s. O que aconteceu: RecoveryNode tenta segundo filho. RoundRobin executa Spin. ~30 ticks de 10 Hz veem Spin RUNNING. SUCCESS quando termina.
+
+Passo 8, t=6.0 s. Caminho ativo: Recovery, Pipeline, Rate, Compute, FollowPath. Duração: ~50 ms. /cmd_vel: sai de novo. O que aconteceu: RoundRobin SUCCESS. Recovery reseta. RateController sem memória, chama Compute. Plano novo (pose diferente após Spin). FollowPath retoma.
+
+### Padrão de timing em 1 segundo de operação normal
+
+Tick da BT inteira: 10 vezes por segundo, duração de 2 a 80 ms cada. Tick com A* rodando: 1 vez por segundo, duração 30-100 ms. Tick sem A* (RateController bloqueou): 9 vezes por segundo, duração ~2 ms cada. Comando publicado em /cmd_vel pelo MPPI: 20 vezes por segundo, continuamente. Loop interno de motor (PID no diff_drive): 100 vezes por segundo, ~1 ms cada.
+
+Os três loops (1 Hz planejador, 20 Hz controller, 100 Hz executor) rodam em PROCESSOS ROS 2 DIFERENTES, em paralelo. BT não bloqueia MPPI, MPPI não bloqueia controle de motor. Cada um na sua frequência, conectado pelos tópicos.
+
+### Por que isso importa para diagnóstico
+
+Sintoma: robô gira a cada poucos segundos sem chegar. Hipótese: /planner_server crashou; ComputePathToPose dá timeout em FAILURE; entra em recovery em loop. Onde investigar: ros2 node list para ver se planner_server está vivo.
+
+Sintoma: robô segue caminho desatualizado por muito tempo. Hipótese: RateController configurado em frequência muito baixa (ex: 0.1 Hz). Onde investigar: nav2_params.yaml parâmetro do RateController.
+
+Sintoma: robô não dá ré em situação travada. Hipótese: BT XML não inclui BackUp no RoundRobin. Onde investigar: editar behavior_trees/navigate_to_pose.xml.
+
+Sintoma: robô faz spin sem sentido em loop. Hipótese: RoundRobin do recovery configurado errado. Onde investigar: editar XML da BT.
+
+### Perguntas de verificação (Behavior Tree)
+
+1. Por que existem DOIS componentes no Loop 1 e não um só algoritmo?
+
+2. Qual a diferença entre "nó ROS 2" e "nó de Behavior Tree"?
+
+3. Qual a diferença prática entre Sequence e Selector? Dá um exemplo de quando usar cada um.
+
+4. Por que o RateController retorna SUCCESS sintético em vez de RUNNING quando estrangula o filho?
+
+5. Se o /planner_server estivesse desligado, o que aconteceria quando ComputePathToPose fosse chamado?
+
+6. Por que replanejar a cada 1 segundo em vez de planejar uma vez no início e seguir?
+
+7. O que aconteceria se o RateController fosse trocado para 0.1 Hz (replan a cada 10 segundos)?
+
+Respostas corretas:
+
+1. São tipos diferentes de problema. BT resolve LÓGICA de decisão (sequência, alternativas, recovery). A* resolve GEOMETRIA de caminho (busca em grafo). Juntar tudo seria monstruoso e impossível de debugar.
+
+2. Nó ROS 2 = processo do SO, aparece em ros2 node list. Nó BT = elemento do XML, vive na memória do bt_navigator, não aparece como processo.
+
+3. Sequence = AND, executa em ordem e para no primeiro que falhar. Selector = OR, executa em ordem e para no primeiro que funcionar. Sequence para missão (todos os passos têm que dar certo). Selector para recovery (qualquer opção que funcione resolve).
+
+4. Para a Sequence acima conseguir avançar para o próximo filho (FollowPath). RUNNING travaria a árvore e FollowPath nunca seria chamado.
+
+5. ComputePathToPose teria timeout (~5 s), durante esse tempo retorna RUNNING. Depois retorna FAILURE. Sequence corta e retorna FAILURE. RecoveryNode tenta RoundRobin (Spin, depois Wait, etc.) em loop. Após 6 retries totais, aborta missão.
+
+6. Obstáculos dinâmicos aparecem. Posição real diverge do esperado (derrapagem, drift de odometria). Mapa pode estar sendo atualizado (SLAM). Costmap inflado por sensor pega obstáculos transitórios. Goal pode ter mudado externamente.
+
+7. Em 10 segundos a 0.5 m/s, robô anda 5 m. Obstáculos novos não seriam refletidos no caminho global por muito tempo. Drift acumula muito entre replans (10-30 cm). Quando finalmente replanejasse, o caminho daria pulo súbito. MPPI faria mais esforço compensando caminho desatualizado, gastando CPU igual ou pior.
+
+[A SEGUIR: Componente 2 — SMAC Hybrid-A*]
+
+Em construção. Próxima atualização do caderno cobrirá: como A* básico funciona com Open List e Closed List, por que f = g + h, diferença entre A* básico e Hybrid-A*, primitivas Dubin, analytic expansion, parâmetros principais do rbot.
 
 ---
 

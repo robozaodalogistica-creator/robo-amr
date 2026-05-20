@@ -1,0 +1,49 @@
+<svg width="680" height="520" viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Mapa dos nós ROS estudados</title>
+  <desc>LiDAR alimenta /global_costmap, que publica para /planner_server, que é chamado pela folha ComputePathToPose da Behavior Tree no /bt_navigator</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="40" y="30" width="180" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="130" y="56" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">LiDAR</text>
+  <text x="130" y="74" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#5F5E5A">publica /scan 15 Hz</text>
+
+  <rect x="280" y="30" width="240" height="80" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="400" y="54" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#085041">/global_costmap</text>
+  <text x="400" y="74" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#0F6E56">ObstacleLayer + InflationLayer</text>
+  <text x="400" y="92" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#0F6E56">publica costmap 1-5 Hz</text>
+
+  <line x1="220" y1="58" x2="276" y2="58" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
+  <text x="248" y="50" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#5F5E5A">/scan</text>
+
+  <rect x="280" y="200" width="240" height="80" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="400" y="224" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#3C3489">/planner_server</text>
+  <text x="400" y="244" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#534AB7">SMAC Hybrid-A*</text>
+  <text x="400" y="262" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#534AB7">lê costmap, roda quando pedem</text>
+
+  <line x1="400" y1="114" x2="400" y2="196" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)" fill="none"/>
+  <text x="450" y="158" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#5F5E5A">costmap (tópico)</text>
+
+  <rect x="40" y="330" width="600" height="160" rx="12" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+  <text x="340" y="358" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#712B13">/bt_navigator</text>
+  <text x="340" y="376" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#993C1D">tica BT a 10 Hz</text>
+
+  <rect x="80" y="395" width="200" height="68" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="180" y="419" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#633806">ComputePathToPose</text>
+  <text x="180" y="437" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#854F0B">folha BT, cliente da ação</text>
+  <text x="180" y="455" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#854F0B">filtrada por RateController 1 Hz</text>
+
+  <rect x="400" y="395" width="200" height="68" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="500" y="419" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#633806">FollowPath</text>
+  <text x="500" y="437" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#854F0B">folha BT, próximo passo</text>
+  <text x="500" y="455" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#854F0B">aciona controller_server</text>
+
+  <path d="M180 395 L180 320 L350 320 L350 284" fill="none" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="200" y="312" text-anchor="start" font-family="sans-serif" font-size="12" fill="#534AB7">ação: me dá um caminho</text>
+
+  <path d="M450 284 L450 320 L500 320 L500 395" fill="none" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="540" y="312" text-anchor="start" font-family="sans-serif" font-size="12" fill="#534AB7">retorna caminho</text>
+</svg>

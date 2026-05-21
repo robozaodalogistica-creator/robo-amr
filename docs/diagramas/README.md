@@ -11,3 +11,7 @@ Diagramas visuais usados nas sessões de estudo. Cada diagrama tem versão SVG (
 ## Uso
 
 Os PNGs podem ser baixados via GitHub e importados no GoodNotes ou outras ferramentas de anotação visual.
+
+## Documentos relacionados
+
+- [Procedimento de inicialização da stack Nav2](../PROCEDIMENTO_INICIALIZACAO.md) — sequência testada para subir simulação + SLAM + Nav2, com problemas conhecidos e soluções.

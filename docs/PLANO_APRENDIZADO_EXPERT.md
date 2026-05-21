@@ -11,6 +11,16 @@
 
 ---
 
+## 📚 Status do Estudo Didático
+
+Acompanhamento dos blocos teóricos cobertos em [ESTUDO_DIDATICO.md](ESTUDO_DIDATICO.md). Resumos rápidos para revisão em [RESUMOS_RAPIDOS.md](RESUMOS_RAPIDOS.md).
+
+- [x] Bloco 1: Os 3 loops do robô — concluído em 19/05/2026
+- [x] Bloco 2: Loop 1 (Planejador) — BT + SMAC A* — concluído em 20/05/2026 — ver [RESUMOS_RAPIDOS.md](RESUMOS_RAPIDOS.md#bloco-2--loop-1-o-planejador-1-hz) e [diagrama](diagramas/01_mapa_nos_estudados.png)
+- [ ] Bloco 9: Loop 3 — Executor + ros2_control (próximo)
+
+---
+
 ## 🧭 Princípio fundamental
 
 **Não é tempo total. É qualidade do tempo.**

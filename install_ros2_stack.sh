@@ -79,6 +79,8 @@ apt-get install -yq --no-install-recommends \
 echo "[6/7] Installing SLAM Toolbox..."
 apt-get install -yq --no-install-recommends \
     ros-jazzy-slam-toolbox \
+    ros-jazzy-apriltag-ros \
+    ros-jazzy-image-proc \
     ros-jazzy-cartographer \
     ros-jazzy-cartographer-ros \
     ros-jazzy-rtabmap \

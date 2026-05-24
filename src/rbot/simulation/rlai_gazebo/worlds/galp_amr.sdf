@@ -199,6 +199,16 @@
           <geometry><box><size>0.8 0.6 0.15</size></box></geometry>
           <material><ambient>0.55 0.27 0.07 1</ambient><diffuse>0.55 0.27 0.07 1</diffuse></material>
         </visual>
+        <visual name="apriltag_1">
+          <pose>0 -0.306 0.16 0 0 0</pose>
+          <geometry><box><size>0.20 0.004 0.20</size></box></geometry>
+          <material>
+            <lighting>false</lighting>
+            <emissive>1 1 1 1</emissive>
+            <pbr><metal><albedo_map>model://pallet_tags/materials/textures/tag36h11_id1.png</albedo_map><emissive_map>model://pallet_tags/materials/textures/tag36h11_id1.png</emissive_map><roughness>1.0</roughness><metalness>0.0</metalness></metal></pbr>
+            <ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse><specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
       </link>
     </model>
 
@@ -211,6 +221,16 @@
         <visual name="vis">
           <geometry><box><size>0.8 0.6 0.15</size></box></geometry>
           <material><ambient>0.55 0.27 0.07 1</ambient><diffuse>0.55 0.27 0.07 1</diffuse></material>
+        </visual>
+        <visual name="apriltag_2">
+          <pose>0 0.306 0.16 0 0 0</pose>
+          <geometry><box><size>0.20 0.004 0.20</size></box></geometry>
+          <material>
+            <lighting>false</lighting>
+            <emissive>1 1 1 1</emissive>
+            <pbr><metal><albedo_map>model://pallet_tags/materials/textures/tag36h11_id2.png</albedo_map><emissive_map>model://pallet_tags/materials/textures/tag36h11_id2.png</emissive_map><roughness>1.0</roughness><metalness>0.0</metalness></metal></pbr>
+            <ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse><specular>0.1 0.1 0.1 1</specular>
+          </material>
         </visual>
       </link>
     </model>
@@ -225,6 +245,16 @@
           <geometry><box><size>0.8 0.6 0.15</size></box></geometry>
           <material><ambient>0.55 0.27 0.07 1</ambient><diffuse>0.55 0.27 0.07 1</diffuse></material>
         </visual>
+        <visual name="apriltag_3">
+          <pose>0 -0.306 0.16 0 0 0</pose>
+          <geometry><box><size>0.20 0.004 0.20</size></box></geometry>
+          <material>
+            <lighting>false</lighting>
+            <emissive>1 1 1 1</emissive>
+            <pbr><metal><albedo_map>model://pallet_tags/materials/textures/tag36h11_id3.png</albedo_map><emissive_map>model://pallet_tags/materials/textures/tag36h11_id3.png</emissive_map><roughness>1.0</roughness><metalness>0.0</metalness></metal></pbr>
+            <ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse><specular>0.1 0.1 0.1 1</specular>
+          </material>
+        </visual>
       </link>
     </model>
 
@@ -237,6 +267,16 @@
         <visual name="vis">
           <geometry><box><size>0.8 0.6 0.15</size></box></geometry>
           <material><ambient>0.55 0.27 0.07 1</ambient><diffuse>0.55 0.27 0.07 1</diffuse></material>
+        </visual>
+        <visual name="apriltag_4">
+          <pose>0 0.306 0.16 0 0 0</pose>
+          <geometry><box><size>0.20 0.004 0.20</size></box></geometry>
+          <material>
+            <lighting>false</lighting>
+            <emissive>1 1 1 1</emissive>
+            <pbr><metal><albedo_map>model://pallet_tags/materials/textures/tag36h11_id4.png</albedo_map><emissive_map>model://pallet_tags/materials/textures/tag36h11_id4.png</emissive_map><roughness>1.0</roughness><metalness>0.0</metalness></metal></pbr>
+            <ambient>1 1 1 1</ambient><diffuse>1 1 1 1</diffuse><specular>0.1 0.1 0.1 1</specular>
+          </material>
         </visual>
       </link>
     </model>

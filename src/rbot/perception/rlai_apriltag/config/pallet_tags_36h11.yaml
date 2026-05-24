@@ -1,0 +1,23 @@
+/**:
+  ros__parameters:
+    image_transport: raw
+    family: 36h11
+    size: 0.160
+    max_hamming: 0
+
+    detector:
+      threads: 2
+      decimate: 2.0
+      blur: 0.0
+      refine: true
+      sharpening: 0.25
+      debug: false
+
+    pose_estimation_method: "pnp"
+
+    # One generated tag texture per pallet, mounted on the pallet face used for
+    # fine docking.
+    tag:
+      ids: [1, 2, 3, 4]
+      frames: [pallet_1_tag, pallet_2_tag, pallet_3_tag, pallet_4_tag]
+      sizes: [0.160, 0.160, 0.160, 0.160]

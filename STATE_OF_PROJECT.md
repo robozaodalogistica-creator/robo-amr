@@ -6,7 +6,7 @@
 > 
 > Atualizado periodicamente para manter contexto entre conversas.
 >
-> Última atualização: 2026-05-19
+> Última atualização: 2026-05-24
 
 ---
 
@@ -62,11 +62,13 @@ Mercado-alvo: 3PL, distribuidores, regional e-commerce brasileiros.
 - Missão `rlai_logistics` criada: carrega waypoints por YAML e sequencia Nav2 + garfo
 - Smoke test Phase 1 validou a missão completa: 4 pallets entregues, garfo subindo/baixando, e retorno para home
 - Infraestrutura Gazebo attach/detach criada no caminho opt-in: `galp_amr_attach`, pallets dinâmicos, `detachable_pallets_enabled:=true`, `DetachableJoint` e tópicos ROS `/pallet_N/attach` e `/pallet_N/detach`
+- Pipeline SLAM headless do `galp_amr` validado em 2026-05-23; candidatos foram salvos em `/tmp`, mas o mapa rastreado ainda nao foi substituido porque o LiDAR 2D passa acima dos pallets baixos e o candidato ficou mais ruidoso que o mapa legado
+- Pacote `rlai_apriltag` criado em `src/rbot/perception/rlai_apriltag/`: launch/config para `apriltag_ros` com tags 36h11 dos 4 pallets; dependencia ROS instalada, texturas reais geradas em `rlai_gazebo/models/pallet_tags` e boards adicionados nos mundos `galp_amr`/`galp_amr_attach`; smoke test runtime validado em 2026-05-24 com deteccao de `tag36h11 id=1`, `hamming=0`, decision margin ~235
 - 6 sensores funcionais (LiDAR 2D, 3D, IMU, RGB-D, estéreo, GPS)
 - Modo didático com control_panel.py (pausa/play/velocidade)
 - Visualização VNC via cloudflared
 - Documentação técnica completa
-- GitHub sincronizado com tudo
+- GitHub sincronizado até o último commit; mudanças SLAM/AprilTag desta sessão ainda locais até stage/commit/push
 
 ---
 
@@ -95,10 +97,10 @@ embaixo do pallet.
 
 ### Próximas fases técnicas
 
-- Gerar mapa 2D novo via SLAM no mundo `galp_amr` e substituir o mapa legado
+- Manter o mapa legado por enquanto; o SLAM novo do `galp_amr` foi reproduzido, mas o LiDAR 2D passa acima dos pallets baixos e o candidato ficou mais ruidoso
 - Substituir staging poses por docking real com aproximação fina
 - Integrar `world:=galp_amr_attach`, `detachable_pallets_enabled:=true` e `enable_gazebo_attach:=true` depois que o docking real estiver validado
-- 🎯 AprilTag docking (±2cm precisão)
+- 🎯 AprilTag docking (±2cm precisão): próximo passo é transformar `/apriltag/detections` em comando de aproximação fina antes de ligar attach/detach na missão
 - 🤖 Multi-robô (fleet básico)
 - 🛠️ Hardware físico (fase futura)
 
@@ -120,6 +122,7 @@ embaixo do pallet.
 | docs/CODE_GUIDE.md | Onde mexer no código |
 | docs/HARDWARE_ANATOMY.md | Anatomia técnica do robô |
 | docs/COMO_O_ROBO_ANDA_1_METRO.md | Passo a passo detalhado |
+| docs/SLAM_GALP_MAPPING.md | Nota do experimento SLAM no mundo Galp |
 | docs/ESTUDO_DIDATICO.md | Caderno de estudo (vivo) |
 | docs/O_QUE_PRECISO_ALTERAR.md | Guia prático para meu robô |
 

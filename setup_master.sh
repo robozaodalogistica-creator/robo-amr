@@ -136,9 +136,10 @@ apt_install_missing \
     ros-jazzy-nav2-collision-monitor ros-jazzy-nav2-behavior-tree \
     ros-jazzy-nav2-minimal-tb3-sim
 
-log "[4/7] SLAM Toolbox + foxglove_bridge + TurtleBot3"
+log "[4/7] SLAM Toolbox + perception + foxglove_bridge + TurtleBot3"
 apt_install_missing \
     ros-jazzy-slam-toolbox \
+    ros-jazzy-apriltag-ros ros-jazzy-image-proc \
     ros-jazzy-foxglove-bridge \
     ros-jazzy-turtlebot3 ros-jazzy-turtlebot3-msgs \
     ros-jazzy-turtlebot3-simulations ros-jazzy-turtlebot3-gazebo \
@@ -318,6 +319,7 @@ verify "Gazebo Harmonic (gz binary)" command -v gz || VERIFY_FAIL=$((VERIFY_FAIL
 verify "Nav2 bringup pkg" pkg_installed ros-jazzy-nav2-bringup || VERIFY_FAIL=$((VERIFY_FAIL+1))
 # SLAM Toolbox
 verify "SLAM Toolbox pkg" pkg_installed ros-jazzy-slam-toolbox || VERIFY_FAIL=$((VERIFY_FAIL+1))
+verify "AprilTag ROS pkg" pkg_installed ros-jazzy-apriltag-ros || VERIFY_FAIL=$((VERIFY_FAIL+1))
 # foxglove_bridge
 verify "foxglove_bridge pkg" pkg_installed ros-jazzy-foxglove-bridge || VERIFY_FAIL=$((VERIFY_FAIL+1))
 # cloudflared

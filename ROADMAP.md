@@ -2,7 +2,7 @@
 
 > **Documento vivo de planejamento.** Atualize sempre que decidir algo.
 
-> Última atualização: 2026-05-19
+> Última atualização: 2026-05-24
 
 
 ---
@@ -41,8 +41,8 @@ referência do protótipo anterior em `docs/ROBOT_ANALYSIS.md`.
 **Lacunas atuais** (o que falta para virar empilhadeira AMR de galpão):
 1. **Waypoints ainda são staging poses** — `expedicao` e `doca` foram movidos para poses Nav2-safe fora da inflação do mapa; docking final ainda não está modelado.
 2. **Attach/detach ainda não está no fluxo padrão** — a infraestrutura Gazebo existe e responde, mas fica atrás de `galp_amr_attach`, `detachable_pallets_enabled` e `enable_gazebo_attach` até termos docking real.
-3. **Sem docking de pallet** (AprilTag/visão) — alinhamento fino antes de elevar o garfo (±2 cm).
-4. **Mapa 2D ainda é legado** — a missão fecha, mas o próximo ganho de robustez é gerar um SLAM novo do `galp_amr.sdf`.
+3. **Docking de pallet ainda não integrado** — AprilTag wrapper, config, texturas simuladas e deteccao runtime existem; falta transformar `/apriltag/detections` em aproximação fina antes de elevar o garfo (±2 cm).
+4. **Mapa 2D ainda é legado** — a missão fecha, mas o próximo ganho de robustez é gerar um SLAM novo do `galp_amr.sdf`. Em 2026-05-23 o pipeline SLAM headless foi validado e salvou candidatos em `/tmp`, mas eles ainda não substituem o mapa rastreado; ver `docs/SLAM_GALP_MAPPING.md`.
 5. **Sem fleet** — operação multi-robô e coordenação de zona ainda não modeladas.
 
 ---
@@ -73,7 +73,8 @@ referência do protótipo anterior em `docs/ROBOT_ANALYSIS.md`.
 - [x] **Retune inicial de Nav2 para o mapa Galp pequeno** — `prune_distance`, tolerâncias de goal e progress checker ajustados para evitar path curto com zero poses.
 - [x] **Fechar missão completa 4 pallets** — smoke test headless em 2026-05-19 fechou `MISSION_SUCCESS delivered=4/4 t=576.8s` no `galp_amr`.
 - [x] **Adicionar infraestrutura attach/detach do pallet** — `DetachableJoint` do Gazebo configurado para 4 pallets no mundo opt-in `galp_amr_attach`, bridge ROS→Gazebo criada e missão publica comandos quando `enable_gazebo_attach:=true`.
-- [ ] **Gerar mapa SLAM do mundo final** — substituir o mapa legado `galp_amr.yaml` por mapa produzido no próprio `galp_amr.sdf`.
+- [x] **Preparar AprilTags simulados dos pallets** — pacote `rlai_apriltag` criado, dependencia `apriltag_ros` instalada, texturas tag36h11 IDs 1-4 geradas em `rlai_gazebo/models/pallet_tags` e boards emissivos adicionados aos mundos `galp_amr` e `galp_amr_attach`; smoke test em 2026-05-24 detectou `tag36h11 id=1`, `hamming=0`, margin ~235.
+- [ ] **Gerar mapa SLAM do mundo final** — pipeline validado em 2026-05-23 e script criado em `scripts/generate_galp_slam_candidate.sh`; ainda falta decidir/adotar o mapa final. O primeiro candidato não substituiu `galp_amr.yaml` porque o LiDAR 2D passa acima dos pallets baixos e o mapa ficou mais ruidoso que o legado.
 - [ ] **Integrar attach/detach ao docking real** — ligar por padrão somente depois que AprilTag/docking posicionar o garfo sob o pallet, evitando juntas longas a partir de staging poses.
 
 **Validação em 2026-05-19**: build de `rlai_navigation` e `rlai_logistics`
@@ -104,7 +105,7 @@ posições de garfo sob o pallet.
 
 > **Foco**: chegar a uma missão completa pickup-deliver simulada.
 
-- [ ] **AprilTag para docking de pallet** — câmera RGB no robô + marcador AprilTag colado no pallet. Pacote `apriltag_ros` (Jazzy). Posicionamento fino (±2 cm) antes de elevar o garfo. Validar precisão em simulação antes de hardware.
+- [ ] **AprilTag para docking de pallet** — câmera RGB no robô + marcador AprilTag colado no pallet. Pacote `apriltag_ros` (Jazzy). Posicionamento fino (±2 cm) antes de elevar o garfo. Em 2026-05-24, `/apriltag/detections` foi validado no Gazebo para `pallet_1`; falta criar o nó/behavior de docking fino e acoplar isso ao fluxo da missão.
 - [ ] **SLAM operacional** — `slam_toolbox` `online_async` já está configurado no `rbot` adotado; falta rodar contra o mundo Galp real e definir o fluxo de mapeamento inicial vs `lifelong` para operação.
 - [ ] **Multi-robô (fleet básico)** — 2 ou 3 robôs num mesmo mundo Gazebo, namespaces ROS distintos (`/robot1/...`, `/robot2/...`). Coordenação simples (semáforo de zona/corredor). Antes de OpenRMF para entender o problema.
 - [ ] **Modelar CAD no SolidWorks e importar** — desenhar chassi real, garfo, motorredutores, baterias. Exportar STL/STEP, gerar inércias do CAD, atualizar URDF com geometrias precisas. Saída: BOM mecânica para fabricação.

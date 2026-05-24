@@ -68,7 +68,9 @@ apt-get install -y -qq \
 # ── 6. SLAM Toolbox ───────────────────────────────────────────────────────────
 echo "[6/7] Instalando SLAM Toolbox..."
 apt-get install -y -qq \
-  ros-jazzy-slam-toolbox
+  ros-jazzy-slam-toolbox \
+  ros-jazzy-apriltag-ros \
+  ros-jazzy-image-proc
 
 # ── 7. TurtleBot3 + extras ────────────────────────────────────────────────────
 echo "[7/7] Instalando TurtleBot3..."

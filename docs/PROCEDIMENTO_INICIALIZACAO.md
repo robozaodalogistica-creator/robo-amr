@@ -66,6 +66,27 @@ Deve mostrar 32 nós, incluindo:
 
 Se faltar algum nó da Nav2, verifique o Terminal 3 — algum nó da stack pode ter falhado em ativar.
 
+## Modo navegação com mapa salvo (AMCL)
+
+Após ter um mapa salvo (ex: `maps/galpao_nav.yaml`), o modo de operação **estável** para navegação é usar AMCL em vez de SLAM ativo. Neste modo o mapa fica FIXO (não muda durante a operação), e o AMCL só localiza o robô dentro dele — bem mais robusto que SLAM ativo para navegação real.
+
+### Terminal 1 — simulação + AMCL com mapa salvo
+
+cd ~/robotica/robo-amr
+ros2 launch rlai_bringup simulation.launch.py use_amcl:=true map_yaml_file:=/home/france/robotica/robo-amr/maps/galpao_nav.yaml
+
+### Terminal 3 — Nav2
+
+cd ~/robotica/robo-amr
+ros2 launch rlai_navigation navigation.launch.py use_sim_time:=true
+
+Diferença para o modo SLAM ativo:
+- O mapa não é atualizado durante a navegação — qualquer mudança no ambiente real não aparece no /map.
+- O AMCL precisa de uma pose inicial razoável. Se a estimativa estiver muito errada, use o botão "2D Pose Estimate" no RViz/Foxglove para reposicionar.
+- Recomendado para todas as sessões em que já existe mapa bom do ambiente. Use SLAM ativo apenas quando precisar mapear um ambiente novo.
+
+Mapa de referência atual: `maps/galpao_nav.pgm` + `maps/galpao_nav.yaml` (399×399, 0.05 m/pix).
+
 ## Problemas conhecidos e soluções
 
 ### Problema: navigation falha com erro "Lookup would require extrapolation into the past"
@@ -93,6 +114,35 @@ Solução:
 cd ~/robotica/robo-amr
 colcon build --packages-select rlai_description
 [abrir terminal novo para refletir o source]
+
+### Problema: bt_navigator em estado "unconfigured"
+
+Causa: o lifecycle manager não conseguiu ativar o `bt_navigator` por timing/ordem de subida dos nós.
+
+Verificação:
+ros2 lifecycle get /bt_navigator
+
+Deve responder `active`. Se responder `unconfigured` (ou outro estado), o BT não vai aceitar goals.
+
+Solução: Ctrl+C no Terminal 3 (navigation) e subir novamente `ros2 launch rlai_navigation navigation.launch.py use_sim_time:=true`. Geralmente na segunda tentativa fica `active`.
+
+### Problema: DDS instável — `ros2 node info` não acha nós que existem
+
+Causa: descoberta DDS ainda não estabilizou logo após subir os launches.
+
+Solução: aguardar alguns segundos e repetir o comando. Se `ros2 node list` mostra o nó mas `ros2 node info <nome>` falha, é problema de descoberta, não de o nó estar morto.
+
+### Problema: planner retorna "Start occupied" / inflation cobre todo o mapa
+
+Causa: `inflation_radius` muito grande em relação ao `robot_radius`. Originalmente estava em 1.05 m (para configuração de empilhadeira), mas para o robô atual de `robot_radius 0.1 m` isso cobre quase toda a área navegável com custo alto.
+
+**Resolvido permanentemente** em 2026-05-25: `inflation_radius` corrigido para `0.3` no `src/rbot/navigation/rlai_navigation/config/nav2_params.yaml` (tanto no `global_costmap` quanto no `local_costmap`). Backup do arquivo original em `nav2_params.yaml.backup_20260525`.
+
+### Problema: mapa do SLAM nasce bagunçado / com paredes duplicadas
+
+Causa: o slam_toolbox 2D perde scan matching quando o robô se move rápido demais ou faz giros bruscos — o mesmo ambiente aparece em poses diferentes e duplica.
+
+Solução: durante o mapeamento, dirigir **devagar**, com giros suaves e contínuos. Velocidades altas e mudanças bruscas de direção quebram a sequência de associações de scan. Se o mapa começou a ficar ruim, é melhor reiniciar o SLAM do zero do que tentar consertar dirigindo mais.
 
 ## Layout recomendado de terminais
 

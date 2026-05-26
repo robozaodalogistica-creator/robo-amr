@@ -243,7 +243,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0    # exponential decay rate
-        inflation_radius: 1.05      # metres — covers fork-extended circumscribed radius
+        inflation_radius: 0.3       # metres — ajustado para robot_radius 0.1 (small_warehouse, 2026-05-25)
 
       always_send_full_costmap: true
 
@@ -294,7 +294,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 1.05
+        inflation_radius: 0.3       # ajustado para robot_radius 0.1 (small_warehouse, 2026-05-25)
 
       always_send_full_costmap: true
 

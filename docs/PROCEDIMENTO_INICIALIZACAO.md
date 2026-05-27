@@ -134,9 +134,11 @@ Solução: aguardar alguns segundos e repetir o comando. Se `ros2 node list` mos
 
 ### Problema: planner retorna "Start occupied" / inflation cobre todo o mapa
 
-Causa: `inflation_radius` muito grande em relação ao `robot_radius`. Originalmente estava em 1.05 m (para configuração de empilhadeira), mas para o robô atual de `robot_radius 0.1 m` isso cobre quase toda a área navegável com custo alto.
+Causa: `inflation_radius` precisa ser no mínimo igual ao `circumscribed_radius` do robô (metade da maior dimensão do footprint). Para o AMR com garfos, o `circumscribed_radius` é **0.927 m** (medido pelo `planner_server` a partir do footprint `[[-0.28,-0.23],[-0.28,0.23],[0.86,0.23],[0.86,-0.23]]`). Se o `inflation_radius` for menor que esse valor, o Nav2 emite o aviso `The inflation radius (X) is smaller than the circumscribed radius (0.927200)` e o planejamento falha com "Start occupied", porque a célula onde o robô está aparece como ocupada no costmap inflado.
 
-**Resolvido permanentemente** em 2026-05-25: `inflation_radius` corrigido para `0.3` no `src/rbot/navigation/rlai_navigation/config/nav2_params.yaml` (tanto no `global_costmap` quanto no `local_costmap`). Backup do arquivo original em `nav2_params.yaml.backup_20260525`.
+Tentativa malsucedida em 2026-05-25: reduzimos `inflation_radius` de 1.05 para 0.3 achando que o problema era inflation excessivo — mas 0.3 < 0.927 e causou exatamente a falha de planejamento descrita acima.
+
+**Resolvido permanentemente** em 2026-05-26: `inflation_radius` definido como **`1.05`** no `src/rbot/navigation/rlai_navigation/config/nav2_params.yaml` (tanto no `global_costmap` quanto no `local_costmap`), valor confirmado em runtime. Backup do arquivo anterior em `nav2_params.yaml.bak.2026-05-26`.
 
 ### Problema: mapa do SLAM nasce bagunçado / com paredes duplicadas
 
